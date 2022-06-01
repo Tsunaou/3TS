@@ -1,2 +1,112 @@
-: Anomaly
+causality-violation-anomaly: Avoid
+
+cross-phantom: Rollback
+
+cross-phenomenon: Avoid
+
+dirty-read: Avoid
+
+dirty-write1: Rollback
+
+dirty-write2: Rollback
+
+double-write-skew1-1: Rollback
+
+double-write-skew1-2: Rollback
+
+double-write-skew1-3: Rollback
+
+double-write-skew2: Rollback
+
+fractured-reads: Avoid
+
+full-write-skew1: Rollback
+
+full-write-skew2: Rollback
+
+half-predicate-read-skew: Avoid
+
+half-predicate-write-skew: Anomaly
+
+intermediate-reads: Avoid
+
+intermediate-write1: Rollback
+
+intermediate-write2: Rollback
+
+long-fork-anomaly: Avoid
+
+lost-self-update1: Rollback
+
+lost-self-update2: Rollback
+
+lost-update1: Rollback
+
+lost-update2: Rollback
+
+middle-read: Anomaly
+
+non-repeatable-read1: Avoid
+
+non-repeatable-read2: Avoid
+
+phantom-read: Anomaly
+
+predicate-sawtooth: Rollback
+
+primary-colors2: Rollback
+
+primary-colors: Anomaly
+
+rat-special2: Anomaly
+
+rat-special: Anomaly
+
+read-only-transaction-anomaly-deposit-report: Anomaly
+
+read-only-transaction-anomaly: Anomaly
+
+read-skew1: Avoid
+
+read-skew2: Avoid
+
+read-skew3: Avoid
+
+read-write-skew1-1: Rollback
+
+read-write-skew1-2: Rollback
+
+read-write-skew2: Rollback
+
+sawtooth: Anomaly
+
+serial-concurrent-phenomenon: Avoid
+
+step-read-skew: Avoid
+
+step-wat: Rollback
+
+total-diff-predicate-read-skew: Rollback
+
+total-diff-predicate-write-skew: Rollback
+
+total-same-predicate-read-skew2: Avoid
+
+total-same-predicate-read-skew: Rollback
+
+total-same-predicate-write-skew: Rollback
+
+unnamed-anomaly: Avoid
+
+write-read-skew1: Anomaly
+
+write-read-skew2: Anomaly
+
+write-skew-black-white: Anomaly
+
+write-skew-intersecting-data: Anomaly
+
+write-skew-overdraft-protection: Anomaly
+
+write-skew: Anomaly
 
