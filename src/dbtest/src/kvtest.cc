@@ -17,6 +17,7 @@ DEFINE_string(db_name, "test", "database name");
 DEFINE_int32(conn_pool_size, 4, "session pool size");
 DEFINE_string(isolation, "snapshot", "transation isolation level: snapshot");
 DEFINE_string(timeout, "2", "timeout");
+DEFINE_string(case_type, "non-predicate", "type of testcases: non-predicate or predicate");
 int is_first_use = 1;
 
 bool JobExecutor::MongoStmtExcutor(const int session_id, const int stmt_id, const std::string& stmt,
@@ -101,6 +102,33 @@ bool JobExecutor::MongoStmtExcutor(const int session_id, const int stmt_id, cons
 	    if (!mongo_connector.KVEndTxn(session_id, stmt_id, "ROLLBACK", test_result_set)) {
             return false;
         }
+    } else if ("p-select" == opt) {
+        const auto& [stmt_data_k, stmt_data_v] = kv_parser.StmtKVData(stmt);
+        mongocxx::collection coll = kv_parser.GetColl(stmt, mongo_connector, is_first_use);
+        if (!coll) {
+            std::cout << "[ERROR]" << "get coll failed" << std::endl;
+            return false;
+        }
+        auto table_name = kv_parser.StmtCollName(stmt);
+        std::cout << "[SHADOW-EXEC] " << "SELECT * FROM " << table_name << " WHERE " << stmt_data_k << std::endl;
+    } else if ("p-delete" == opt) {
+        const auto& [stmt_data_k, stmt_data_v] = kv_parser.StmtKVData(stmt);
+        mongocxx::collection coll = kv_parser.GetColl(stmt, mongo_connector, is_first_use);
+        if (!coll) {
+            std::cout << "[ERROR]" << "get coll failed" << std::endl;
+            return false;
+        }
+        auto table_name = kv_parser.StmtCollName(stmt);
+        std::cout << "[SHADOW-EXEC] " << "DELETE FROM " << table_name << " WHERE " << stmt_data_k << std::endl;
+    } else if ("p-update" == opt) {
+        const auto& [stmt_data_k, stmt_data_v] = kv_parser.StmtKVData(stmt);
+        mongocxx::collection coll = kv_parser.GetColl(stmt, mongo_connector, is_first_use);
+        if (!coll) {
+            std::cout << "[ERROR]" << "get coll failed" << std::endl;
+            return false;
+        }
+        auto table_name = kv_parser.StmtCollName(stmt);
+        std::cout << "[SHADOW-EXEC] " << "UPDATE FROM " << table_name << " SET v=" << stmt_data_v << " WHERE " << stmt_data_k  << std::endl;
     } else {
         std::cout << "[ERROR]" << "stmt: " << stmt << " unknown option: " << opt << " The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback" << std::endl;
     }
@@ -210,6 +238,7 @@ int main(int argc, char* argv[]) {
     std::cout << "  db_type: " << FLAGS_db_type << std::endl;
     std::cout << "  uri: " <<  FLAGS_uri << std::endl;
     std::cout << "  isolation: " <<  FLAGS_isolation << std::endl;
+    std::cout << "  case_type: " <<  FLAGS_case_type << std::endl;
     // init mongo_connector 
     // provide IP, port, and db
     MongoConnector mongo_connector("mongodb://9.134.39.34:27037/admin", "testdb");
@@ -229,7 +258,12 @@ int main(int argc, char* argv[]) {
     }
     // read kv case test file 
     std::string test_path_base = "t/";
-    std::string test_path = test_path_base + "mongodb";
+    std::string test_path;
+    if("non-predicate" == FLAGS_case_type) {
+        test_path = test_path_base + "mongodb";
+    } else {
+        test_path = test_path_base + "mongodb_p";
+    }
     if (!case_reader.InitTestSequenceAndTestResultSetList(test_path, "mongodb")) {
         std::cout << "init test sequence and test result set failed" << std::endl;
     }

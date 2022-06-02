@@ -1,0 +1,2758 @@
+input param-> 
+  db_type: mongodb
+  uri: 
+  isolation: snapshot
+init mongo_connector success
+----------read test sequence and test result set start----------
+t/mongodb/causality-violation-anomaly.txt read success
+t/mongodb/cross-phantom.txt read success
+t/mongodb/cross-phenomenon.txt read success
+t/mongodb/dirty-read.txt read success
+t/mongodb/dirty-write1.txt read success
+t/mongodb/dirty-write2.txt read success
+t/mongodb/double-write-skew1-1.txt read success
+t/mongodb/double-write-skew1-2.txt read success
+t/mongodb/double-write-skew1-3.txt read success
+t/mongodb/double-write-skew2.txt read success
+t/mongodb/fractured-reads.txt read success
+t/mongodb/full-write-skew1.txt read success
+t/mongodb/full-write-skew2.txt read success
+t/mongodb/half-predicate-read-skew.txt read success
+t/mongodb/half-predicate-write-skew.txt read success
+t/mongodb/intermediate-reads.txt read success
+t/mongodb/intermediate-write1.txt read success
+t/mongodb/intermediate-write2.txt read success
+t/mongodb/long-fork-anomaly.txt read success
+t/mongodb/lost-self-update1.txt read success
+t/mongodb/lost-self-update2.txt read success
+t/mongodb/lost-update1.txt read success
+t/mongodb/lost-update2.txt read success
+t/mongodb/middle-read.txt read success
+t/mongodb/non-repeatable-read1.txt read success
+t/mongodb/non-repeatable-read2.txt read success
+t/mongodb/phantom-read.txt read success
+t/mongodb/predicate-sawtooth.txt read success
+t/mongodb/primary-colors2.txt read success
+t/mongodb/primary-colors.txt read success
+t/mongodb/rat-special2.txt read success
+t/mongodb/rat-special.txt read success
+t/mongodb/read-only-transaction-anomaly-deposit-report.txt read success
+t/mongodb/read-only-transaction-anomaly.txt read success
+t/mongodb/read-skew1.txt read success
+t/mongodb/read-skew2.txt read success
+t/mongodb/read-skew3.txt read success
+t/mongodb/read-write-skew1-1.txt read success
+t/mongodb/read-write-skew1-2.txt read success
+t/mongodb/read-write-skew2.txt read success
+t/mongodb/sawtooth.txt read success
+t/mongodb/serial-concurrent-phenomenon.txt read success
+t/mongodb/step-read-skew.txt read success
+t/mongodb/step-wat.txt read success
+t/mongodb/total-diff-predicate-read-skew.txt read success
+t/mongodb/total-diff-predicate-write-skew.txt read success
+t/mongodb/total-same-predicate-read-skew2.txt read success
+t/mongodb/total-same-predicate-read-skew.txt read success
+t/mongodb/total-same-predicate-write-skew.txt read success
+t/mongodb/unnamed-anomaly.txt read success
+t/mongodb/write-read-skew1.txt read success
+t/mongodb/write-read-skew2.txt read success
+t/mongodb/write-skew-black-white.txt read success
+t/mongodb/write-skew-intersecting-data.txt read success
+t/mongodb/write-skew-overdraft-protection.txt read success
+t/mongodb/write-skew.txt read success
+test_process_file : ./mongodb/snapshot/causality-violation-anomaly.txt
+#### db_type: mongodb ####
+#### test_type: causality-violation-anomaly ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+  *(2) expected_result: 
+     (0,0) 
+   (3) expected_result: 
+     (0,1) 
+   (4) expected_result: 
+     (0,1) 
+  *(5) expected_result: 
+     (0,0) 
+   (6) expected_result: 
+     (0,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 1)'
+                                        T2 COMMIT transaction success
+                                                                                T3 start transaction success
+                                                                                T3 execute stmt: 't1.get(0)'
+                                                                                   current_result: 
+                                                                                     (0,1) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,1) 
+                                                                                   (2) expected_result: 
+                                                                                     (0,0) 
+                                                                                  *(3) expected_result: 
+                                                                                     (0,1) 
+                                                                                  *(4) expected_result: 
+                                                                                     (0,1) 
+                                                                                   (5) expected_result: 
+                                                                                     (0,0) 
+                                                                                   (6) expected_result: 
+                                                                                     (0,0) 
+                                                                                T3 execute stmt: 't1.put(1, 1)'
+                                                                                T3 COMMIT transaction success
+T1 execute stmt: 't1.get(1)'
+   current_result: 
+     (1,0) 
+  *(1) expected_result: 
+     (1,0) 
+  *(2) expected_result: 
+     (1,0) 
+   (3) expected_result: 
+     (1,1) 
+  *(4) expected_result: 
+     (1,0) 
+   (5) expected_result: 
+     (1,1) 
+   (6) expected_result: 
+     (1,1) 
+T1 COMMIT transaction success
+                                                                                                                        T4 execute stmt: 't1.get(*)'
+                                                                                                                           current_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(1) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(2) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(3) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(4) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(5) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(6) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+
+The current result is consistent with the [(1) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/cross-phantom.txt
+#### db_type: mongodb ####
+#### test_type: cross-phantom ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 start transaction success
+T1 execute stmt: 't1.getpred(0)'
+   current_result: 
+     null 
+  *(1) expected_result: 
+     null 
+  *(2) expected_result: 
+     null 
+  *(3) expected_result: 
+     null 
+  *(4) expected_result: 
+     null 
+   (5) expected_result: 
+     (0,0) 
+   (6) expected_result: 
+     (1,0) 
+   (7) expected_result: 
+     (0,0) (1,0) 
+   (8) expected_result: 
+     (0,0) 
+   (9) expected_result: 
+     (1,0) 
+   (10) expected_result: 
+     (0,0) (1,0) 
+   (11) expected_result: 
+     (0,0) 
+   (12) expected_result: 
+     (1,0) 
+   (13) expected_result: 
+     (0,0) (1,0) 
+   (14) expected_result: 
+     (0,0) (1,0) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.getpred(0)'
+                                           current_result: 
+                                             null 
+                                          *(1) expected_result: 
+                                             null 
+                                           (2) expected_result: 
+                                             (0,0) 
+                                           (3) expected_result: 
+                                             (1,0) 
+                                           (4) expected_result: 
+                                             (0,0) (1,0) 
+                                          *(5) expected_result: 
+                                             null 
+                                          *(6) expected_result: 
+                                             null 
+                                          *(7) expected_result: 
+                                             null 
+                                           (8) expected_result: 
+                                             (0,0) 
+                                           (9) expected_result: 
+                                             (1,0) 
+                                           (10) expected_result: 
+                                             (0,0) (1,0) 
+                                           (11) expected_result: 
+                                             (0,0) (1,0) 
+                                           (12) expected_result: 
+                                             (0,0) (1,0) 
+                                           (13) expected_result: 
+                                             (0,0) 
+                                           (14) expected_result: 
+                                             (1,0) 
+                                                                                T3 start transaction success
+                                                                                T3 execute stmt: 't1.put(0, 0)'
+                                                                                T3 COMMIT transaction success
+                                                                                                                        T4 start transaction success
+                                                                                                                        T4 execute stmt: 't1.put(1, 0)'
+                                                                                                                        T4 COMMIT transaction success
+                                        T2 execute stmt: 't1.getpred(0)'
+                                        [ERROR] in MongoConnector::ExecFindkV ->Unable to read from a snapshot due to pending collection catalog changes; please retry the operation. Snapshot timestamp is Timestamp(1654074223, 8). Collection minimum is Timestamp(1654074223, 9): generic server error
+
+Test Result: Rollback
+Reason: Unable to read from a snapshot due to pending collection catalog changes; please retry the operation. Snapshot timestamp is Timestamp(1654074223, 8). Collection minimum is Timestamp(1654074223, 9): generic server error
+
+test_process_file : ./mongodb/snapshot/cross-phenomenon.txt
+#### db_type: mongodb ####
+#### test_type: cross-phenomenon ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+  *(2) expected_result: 
+     (0,0) 
+  *(3) expected_result: 
+     (0,0) 
+  *(4) expected_result: 
+     (0,0) 
+  *(5) expected_result: 
+     (0,0) 
+   (6) expected_result: 
+     (0,1) 
+   (7) expected_result: 
+     (0,1) 
+  *(8) expected_result: 
+     (0,0) 
+   (9) expected_result: 
+     (0,1) 
+   (10) expected_result: 
+     (0,1) 
+  *(11) expected_result: 
+     (0,0) 
+   (12) expected_result: 
+     (0,1) 
+   (13) expected_result: 
+     (0,1) 
+   (14) expected_result: 
+     (0,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.get(1)'
+                                           current_result: 
+                                             (1,0) 
+                                          *(1) expected_result: 
+                                             (1,0) 
+                                           (2) expected_result: 
+                                             (1,1) 
+                                          *(3) expected_result: 
+                                             (1,0) 
+                                           (4) expected_result: 
+                                             (1,1) 
+                                          *(5) expected_result: 
+                                             (1,0) 
+                                          *(6) expected_result: 
+                                             (1,0) 
+                                          *(7) expected_result: 
+                                             (1,0) 
+                                           (8) expected_result: 
+                                             (1,1) 
+                                          *(9) expected_result: 
+                                             (1,0) 
+                                           (10) expected_result: 
+                                             (1,1) 
+                                           (11) expected_result: 
+                                             (1,1) 
+                                           (12) expected_result: 
+                                             (1,1) 
+                                           (13) expected_result: 
+                                             (1,1) 
+                                          *(14) expected_result: 
+                                             (1,0) 
+                                                                                T3 start transaction success
+                                                                                T3 execute stmt: 't1.put(0, 1)'
+                                                                                T3 COMMIT transaction success
+                                                                                                                        T4 start transaction success
+                                                                                                                        T4 execute stmt: 't1.put(1, 1)'
+                                                                                                                        T4 COMMIT transaction success
+                                        T2 execute stmt: 't1.get(0)'
+                                           current_result: 
+                                             (0,0) 
+                                          *(1) expected_result: 
+                                             (0,0) 
+                                          *(2) expected_result: 
+                                             (0,0) 
+                                           (3) expected_result: 
+                                             (0,1) 
+                                           (4) expected_result: 
+                                             (0,1) 
+                                          *(5) expected_result: 
+                                             (0,0) 
+                                          *(6) expected_result: 
+                                             (0,0) 
+                                          *(7) expected_result: 
+                                             (0,0) 
+                                          *(8) expected_result: 
+                                             (0,0) 
+                                           (9) expected_result: 
+                                             (0,1) 
+                                           (10) expected_result: 
+                                             (0,1) 
+                                           (11) expected_result: 
+                                             (0,1) 
+                                          *(12) expected_result: 
+                                             (0,0) 
+                                           (13) expected_result: 
+                                             (0,1) 
+                                           (14) expected_result: 
+                                             (0,1) 
+                                        T2 COMMIT transaction success
+T1 execute stmt: 't1.get(1)'
+   current_result: 
+     (1,0) 
+  *(1) expected_result: 
+     (1,0) 
+  *(2) expected_result: 
+     (1,0) 
+  *(3) expected_result: 
+     (1,0) 
+  *(4) expected_result: 
+     (1,0) 
+   (5) expected_result: 
+     (1,1) 
+  *(6) expected_result: 
+     (1,0) 
+   (7) expected_result: 
+     (1,1) 
+   (8) expected_result: 
+     (1,1) 
+  *(9) expected_result: 
+     (1,0) 
+   (10) expected_result: 
+     (1,1) 
+   (11) expected_result: 
+     (1,1) 
+   (12) expected_result: 
+     (1,1) 
+  *(13) expected_result: 
+     (1,0) 
+   (14) expected_result: 
+     (1,1) 
+T1 COMMIT transaction success
+                                                                                                                        T4 execute stmt: 't1.get(*)'
+                                                                                                                           current_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(1) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(2) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(3) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(4) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(5) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(6) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(7) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(8) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(9) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(10) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(11) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(12) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(13) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(14) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+
+The current result is consistent with the [(1) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/dirty-read.txt
+#### db_type: mongodb ####
+#### test_type: dirty-read ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 start transaction success
+                                        T2 start transaction success
+T1 execute stmt: 't1.put(0, 0)'
+                                        T2 execute stmt: 't1.get(0)'
+                                           current_result: 
+                                             null 
+                                          *(1) expected_result: 
+                                             null 
+T1 ROLLBACK transaction success
+                                        T2 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     null 
+                                                                                  *(1) expected_result: 
+                                                                                     null 
+
+The current result is consistent with the [(1) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/dirty-write1.txt
+#### db_type: mongodb ####
+#### test_type: dirty-write1 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 2)'
+                                        [ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/dirty-write2.txt
+#### db_type: mongodb ####
+#### test_type: dirty-write2 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 2)'
+                                        [ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/double-write-skew1-1.txt
+#### db_type: mongodb ####
+#### test_type: double-write-skew1-1 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.get(0)'
+                                           current_result: 
+                                             (0,0) 
+                                           (1) expected_result: 
+                                             (0,1) 
+                                          *(2) expected_result: 
+                                             (0,0) 
+                                        T2 execute stmt: 't1.put(1, 1)'
+T1 execute stmt: 't1.put(1, 2)'
+[ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/double-write-skew1-2.txt
+#### db_type: mongodb ####
+#### test_type: double-write-skew1-2 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 2)'
+                                        [ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/double-write-skew1-3.txt
+#### db_type: mongodb ####
+#### test_type: double-write-skew1-3 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 2)'
+                                        [ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/double-write-skew2.txt
+#### db_type: mongodb ####
+#### test_type: double-write-skew2 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.get(0)'
+                                           current_result: 
+                                             (0,0) 
+                                           (1) expected_result: 
+                                             (0,1) 
+                                          *(2) expected_result: 
+                                             (0,0) 
+                                        T2 execute stmt: 't1.put(1, 1)'
+                                        T2 COMMIT transaction success
+T1 execute stmt: 't1.put(1, 2)'
+[ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/fractured-reads.txt
+#### db_type: mongodb ####
+#### test_type: fractured-reads ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+   (2) expected_result: 
+     (0,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 1)'
+                                        T2 execute stmt: 't1.put(1, 1)'
+                                        T2 COMMIT transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+   (2) expected_result: 
+     (0,1) 
+T1 execute stmt: 't1.get(1)'
+   current_result: 
+     (1,0) 
+  *(1) expected_result: 
+     (1,0) 
+   (2) expected_result: 
+     (1,1) 
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(2) expected_result: 
+                                                                                     (0,1) (1,1) 
+
+The current result is consistent with the [(1) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/full-write-skew1.txt
+#### db_type: mongodb ####
+#### test_type: full-write-skew1 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 2)'
+                                        [ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/full-write-skew2.txt
+#### db_type: mongodb ####
+#### test_type: full-write-skew2 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 2)'
+                                        [ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/half-predicate-read-skew.txt
+#### db_type: mongodb ####
+#### test_type: half-predicate-read-skew ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(1, 1)'
+T1 start transaction success
+T1 execute stmt: 't1.getpred(0)'
+   current_result: 
+     null 
+  *(1) expected_result: 
+     null 
+   (2) expected_result: 
+     (0,0) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(1, 2)'
+                                        T2 execute stmt: 't1.put(0, 0)'
+                                        T2 COMMIT transaction success
+T1 execute stmt: 't1.get(1)'
+   current_result: 
+     (1,1) 
+  *(1) expected_result: 
+     (1,1) 
+   (2) expected_result: 
+     (1,2) 
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     (1,2) (0,0) 
+                                                                                  *(1) expected_result: 
+                                                                                     (1,2) (0,0) 
+                                                                                  *(2) expected_result: 
+                                                                                     (1,2) (0,0) 
+
+The current result is consistent with the [(1) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/half-predicate-write-skew.txt
+#### db_type: mongodb ####
+#### test_type: half-predicate-write-skew ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(1, 1)'
+T1 start transaction success
+T1 execute stmt: 't1.getpred(0)'
+   current_result: 
+     null 
+  *(1) expected_result: 
+     null 
+   (2) expected_result: 
+     (0,0) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.get(1)'
+                                           current_result: 
+                                             (1,1) 
+                                           (1) expected_result: 
+                                             (1,2) 
+                                          *(2) expected_result: 
+                                             (1,1) 
+T1 execute stmt: 't1.put(1, 2)'
+                                        T2 execute stmt: 't1.put(0, 0)'
+T1 COMMIT transaction success
+                                        T2 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     (1,2) (0,0) 
+                                                                                  *(1) expected_result: 
+                                                                                     (1,2) (0,0) 
+                                                                                  *(2) expected_result: 
+                                                                                     (1,2) (0,0) 
+
+Test Result: Anomaly
+Reason: Data anomaly is not recognized by the database, resulting in data inconsistencies
+
+test_process_file : ./mongodb/snapshot/intermediate-reads.txt
+#### db_type: mongodb ####
+#### test_type: intermediate-reads ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.get(0)'
+                                           current_result: 
+                                             (0,0) 
+                                           (1) expected_result: 
+                                             (0,2) 
+                                          *(2) expected_result: 
+                                             (0,0) 
+                                        T2 COMMIT transaction success
+T1 execute stmt: 't1.put(0, 2)'
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     (0,2) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,2) 
+                                                                                  *(2) expected_result: 
+                                                                                     (0,2) 
+
+The current result is consistent with the [(2) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/intermediate-write1.txt
+#### db_type: mongodb ####
+#### test_type: intermediate-write1 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 2)'
+                                        [ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/intermediate-write2.txt
+#### db_type: mongodb ####
+#### test_type: intermediate-write2 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(1, 0)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 2)'
+                                        T2 COMMIT transaction success
+T1 execute stmt: 't1.put(0, 3)'
+[ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/long-fork-anomaly.txt
+#### db_type: mongodb ####
+#### test_type: long-fork-anomaly ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+                                                                                                                        T4 start transaction success
+                                                                                                                        T4 execute stmt: 't1.get(0)'
+                                                                                                                           current_result: 
+                                                                                                                             (0,0) 
+                                                                                                                          *(1) expected_result: 
+                                                                                                                             (0,0) 
+                                                                                                                           (2) expected_result: 
+                                                                                                                             (0,1) 
+                                                                                                                          *(3) expected_result: 
+                                                                                                                             (0,0) 
+                                                                                                                           (4) expected_result: 
+                                                                                                                             (0,1) 
+                                                                                                                           (5) expected_result: 
+                                                                                                                             (0,1) 
+                                                                                                                          *(6) expected_result: 
+                                                                                                                             (0,0) 
+                                                                                                                           (7) expected_result: 
+                                                                                                                             (0,1) 
+                                                                                                                           (8) expected_result: 
+                                                                                                                             (0,1) 
+                                                                                                                          *(9) expected_result: 
+                                                                                                                             (0,0) 
+                                                                                                                           (10) expected_result: 
+                                                                                                                             (0,1) 
+                                                                                                                          *(11) expected_result: 
+                                                                                                                             (0,0) 
+                                                                                                                           (12) expected_result: 
+                                                                                                                             (0,1) 
+                                                                                                                          *(13) expected_result: 
+                                                                                                                             (0,0) 
+                                                                                                                          *(14) expected_result: 
+                                                                                                                             (0,0) 
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                                                                T3 start transaction success
+                                                                                T3 execute stmt: 't1.get(1)'
+                                                                                   current_result: 
+                                                                                     (1,0) 
+                                                                                  *(1) expected_result: 
+                                                                                     (1,0) 
+                                                                                  *(2) expected_result: 
+                                                                                     (1,0) 
+                                                                                   (3) expected_result: 
+                                                                                     (1,1) 
+                                                                                   (4) expected_result: 
+                                                                                     (1,1) 
+                                                                                  *(5) expected_result: 
+                                                                                     (1,0) 
+                                                                                   (6) expected_result: 
+                                                                                     (1,1) 
+                                                                                   (7) expected_result: 
+                                                                                     (1,1) 
+                                                                                  *(8) expected_result: 
+                                                                                     (1,0) 
+                                                                                   (9) expected_result: 
+                                                                                     (1,1) 
+                                                                                   (10) expected_result: 
+                                                                                     (1,1) 
+                                                                                  *(11) expected_result: 
+                                                                                     (1,0) 
+                                                                                  *(12) expected_result: 
+                                                                                     (1,0) 
+                                                                                  *(13) expected_result: 
+                                                                                     (1,0) 
+                                                                                   (14) expected_result: 
+                                                                                     (1,1) 
+                                                                                T3 execute stmt: 't1.get(0)'
+                                                                                   current_result: 
+                                                                                     (0,0) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,0) 
+                                                                                  *(2) expected_result: 
+                                                                                     (0,0) 
+                                                                                   (3) expected_result: 
+                                                                                     (0,1) 
+                                                                                   (4) expected_result: 
+                                                                                     (0,1) 
+                                                                                   (5) expected_result: 
+                                                                                     (0,1) 
+                                                                                  *(6) expected_result: 
+                                                                                     (0,0) 
+                                                                                   (7) expected_result: 
+                                                                                     (0,1) 
+                                                                                   (8) expected_result: 
+                                                                                     (0,1) 
+                                                                                   (9) expected_result: 
+                                                                                     (0,1) 
+                                                                                  *(10) expected_result: 
+                                                                                     (0,0) 
+                                                                                  *(11) expected_result: 
+                                                                                     (0,0) 
+                                                                                  *(12) expected_result: 
+                                                                                     (0,0) 
+                                                                                   (13) expected_result: 
+                                                                                     (0,1) 
+                                                                                  *(14) expected_result: 
+                                                                                     (0,0) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(1, 1)'
+                                                                                                                        T4 execute stmt: 't1.get(1)'
+                                                                                                                           current_result: 
+                                                                                                                             (1,0) 
+                                                                                                                          *(1) expected_result: 
+                                                                                                                             (1,0) 
+                                                                                                                           (2) expected_result: 
+                                                                                                                             (1,1) 
+                                                                                                                          *(3) expected_result: 
+                                                                                                                             (1,0) 
+                                                                                                                           (4) expected_result: 
+                                                                                                                             (1,1) 
+                                                                                                                          *(5) expected_result: 
+                                                                                                                             (1,0) 
+                                                                                                                           (6) expected_result: 
+                                                                                                                             (1,1) 
+                                                                                                                          *(7) expected_result: 
+                                                                                                                             (1,0) 
+                                                                                                                           (8) expected_result: 
+                                                                                                                             (1,1) 
+                                                                                                                           (9) expected_result: 
+                                                                                                                             (1,1) 
+                                                                                                                           (10) expected_result: 
+                                                                                                                             (1,1) 
+                                                                                                                           (11) expected_result: 
+                                                                                                                             (1,1) 
+                                                                                                                          *(12) expected_result: 
+                                                                                                                             (1,0) 
+                                                                                                                          *(13) expected_result: 
+                                                                                                                             (1,0) 
+                                                                                                                          *(14) expected_result: 
+                                                                                                                             (1,0) 
+T1 COMMIT transaction success
+                                        T2 COMMIT transaction success
+                                                                                T3 COMMIT transaction success
+                                                                                                                        T4 COMMIT transaction success
+                                                                                                                        T4 execute stmt: 't1.get(*)'
+                                                                                                                           current_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(1) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(2) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(3) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(4) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(5) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(6) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(7) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(8) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(9) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(10) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(11) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(12) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(13) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+                                                                                                                          *(14) expected_result: 
+                                                                                                                             (0,1) (1,1) 
+
+The current result is consistent with the [(1) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/lost-self-update1.txt
+#### db_type: mongodb ####
+#### test_type: lost-self-update1 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 2)'
+                                        [ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/lost-self-update2.txt
+#### db_type: mongodb ####
+#### test_type: lost-self-update2 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 2)'
+                                        [ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/lost-update1.txt
+#### db_type: mongodb ####
+#### test_type: lost-update1 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+   (2) expected_result: 
+     (0,2) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 2)'
+T1 execute stmt: 't1.put(0, 1)'
+[ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/lost-update2.txt
+#### db_type: mongodb ####
+#### test_type: lost-update2 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+   (2) expected_result: 
+     (0,2) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 2)'
+                                        T2 COMMIT transaction success
+T1 execute stmt: 't1.put(0, 1)'
+[ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/middle-read.txt
+#### db_type: mongodb ####
+#### test_type: middle-read ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+[ERROR]stmt: DROP TABLE IF EXISTS t1; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: CREATE TABLE t1 (k INT PRIMARY KEY, v INT); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: INSERT INTO t1 VALUES (0, 0); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: COMMIT; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: BEGIN; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: UPDATE t1 SET v=1 WHERE k=0; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: BEGIN; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: SELECT * from t1 WHERE k=0; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: COMMIT; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: UPDATE t1 SET v=2 WHERE k=0; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: COMMIT; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: SELECT * FROM t1; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: COMMIT; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+
+Test Result: Anomaly
+Reason: Data anomaly is not recognized by the database, resulting in data inconsistencies
+
+test_process_file : ./mongodb/snapshot/non-repeatable-read1.txt
+#### db_type: mongodb ####
+#### test_type: non-repeatable-read1 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+   (2) expected_result: 
+     (0,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 1)'
+                                        T2 COMMIT transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+   (2) expected_result: 
+     (0,1) 
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     (0,1) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,1) 
+                                                                                  *(2) expected_result: 
+                                                                                     (0,1) 
+
+The current result is consistent with the [(1) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/non-repeatable-read2.txt
+#### db_type: mongodb ####
+#### test_type: non-repeatable-read2 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+   (2) expected_result: 
+     (0,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 1)'
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+   (2) expected_result: 
+     (0,1) 
+                                        T2 COMMIT transaction success
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     (0,1) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,1) 
+                                                                                  *(2) expected_result: 
+                                                                                     (0,1) 
+
+The current result is consistent with the [(1) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/phantom-read.txt
+#### db_type: mongodb ####
+#### test_type: phantom-read ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+[ERROR]stmt: DROP TABLE IF EXISTS t1; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: CREATE TABLE t1 (k INT PRIMARY KEY, v INT); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: COMMIT; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: BEGIN; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: SELECT * from t1 WHERE v=0; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: BEGIN; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: INSERT INTO t1 VALUES (0, 0); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: COMMIT; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: SELECT * from t1 WHERE v=0; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: COMMIT; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: SELECT * FROM t1; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: COMMIT; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+
+Test Result: Anomaly
+Reason: Data anomaly is not recognized by the database, resulting in data inconsistencies
+
+test_process_file : ./mongodb/snapshot/predicate-sawtooth.txt
+#### db_type: mongodb ####
+#### test_type: predicate-sawtooth ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 start transaction success
+T1 execute stmt: 't1.getpred(0)'
+   current_result: 
+     null 
+  *(1) expected_result: 
+     null 
+  *(2) expected_result: 
+     null 
+   (3) expected_result: 
+     (1,0) 
+   (4) expected_result: 
+     (1,0) (2,0) 
+   (5) expected_result: 
+     (2,0) 
+   (6) expected_result: 
+     (1,0) (2,0) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.getpred(0)'
+                                           current_result: 
+                                             null 
+                                           (1) expected_result: 
+                                             (0,0) 
+                                           (2) expected_result: 
+                                             (0,0) (2,0) 
+                                          *(3) expected_result: 
+                                             null 
+                                          *(4) expected_result: 
+                                             null 
+                                           (5) expected_result: 
+                                             (0,0) (2,0) 
+                                           (6) expected_result: 
+                                             (2,0) 
+                                                                                T3 start transaction success
+                                                                                T3 execute stmt: 't1.getpred(0)'
+                                                                                   current_result: 
+                                                                                     null 
+                                                                                   (1) expected_result: 
+                                                                                     (0,0) (1,0) 
+                                                                                   (2) expected_result: 
+                                                                                     (0,0) 
+                                                                                   (3) expected_result: 
+                                                                                     (0,0) (1,0) 
+                                                                                   (4) expected_result: 
+                                                                                     (1,0) 
+                                                                                  *(5) expected_result: 
+                                                                                     null 
+                                                                                  *(6) expected_result: 
+                                                                                     null 
+T1 execute stmt: 't1.put(0, 0)'
+                                        T2 execute stmt: 't1.put(1, 0)'
+                                                                                T3 execute stmt: 't1.put(2, 0)'
+T1 COMMIT transaction success
+                                        T2 COMMIT transaction success
+                                        [ERROR] in MongoConnector::KVEndTxn ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/primary-colors2.txt
+#### db_type: mongodb ####
+#### test_type: primary-colors2 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+[ERROR]stmt: drop table if exists dots; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: create table dots(id int not null primary key auto_increment, color text not null); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) values('redredreda'); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) (select color from dots); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) (select color from dots); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) (select color from dots); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) (select color from dots); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) (select color from dots); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) (select color from dots); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) (select color from dots); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) (select color from dots); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) (select color from dots); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) (select color from dots); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) (select color from dots); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) values('yellowabcd'); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) values('yellowabcd'); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) (select color from dots); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) (select color from dots); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) (select color from dots); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) (select color from dots); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) values('blue'); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into dots(color) values('blue'); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: COMMIT; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+T1 start transaction success
+[ERROR]stmt: update dots set color = 'yellow'   where color = 'redredreda'; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+                                        T2 start transaction success
+[ERROR]stmt: update dots set color = 'red'   where color = 'blue'; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+                                                                                T3 start transaction success
+                                                                                [ERROR] in MongoConnector::KVStartTxn ->Transaction already in progress: generic server error
+[ERROR]stmt: update dots set color = 'blue'   where color = 'yellow'; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+T1 COMMIT transaction success
+                                        T2 COMMIT transaction success
+                                                                                T3 COMMIT transaction success
+                                                                                [ERROR] in MongoConnector::KVEndTxn ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/primary-colors.txt
+#### db_type: mongodb ####
+#### test_type: primary-colors ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 'dots.put(1, red)'
+T1 execute stmt: 'dots.put(2, yellow)'
+T1 execute stmt: 'dots.put(3, blue)'
+T1 execute stmt: 'dots.put(4, red)'
+T1 execute stmt: 'dots.put(5, yellow)'
+T1 execute stmt: 'dots.put(6, blue)'
+T1 COMMIT transaction success
+[ERROR] in MongoConnector::KVEndTxn ->No transaction started: generic server error
+T1 start transaction success
+T1 execute stmt: 'dots.putpred(red, yellow)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 'dots.putpred(yellow, blue)'
+                                                                                T3 start transaction success
+                                                                                T3 execute stmt: 'dots.putpred(blue, red)'
+T1 COMMIT transaction success
+                                        T2 COMMIT transaction success
+                                                                                T3 COMMIT transaction success
+                                                                                                                        T4 execute stmt: 'dots.get(*)'
+                                                                                                                           current_result: 
+                                                                                                                             (1,yellow) (2,blue) (3,red) (4,yellow) (5,blue) (6,red) 
+                                                                                                                           (1) expected_result: 
+                                                                                                                             (1,red) (2,red) (3,red) (4,red) (5,red) (6,red) 
+                                                                                                                           (2) expected_result: 
+                                                                                                                             (1,blue) (2,blue) (3,red) (4,blue) (5,blue) (6,red) 
+                                                                                                                           (3) expected_result: 
+                                                                                                                             (1,yellow) (2,yellow) (3,yellow) (4,yellow) (5,yellow) (6,yellow) 
+                                                                                                                           (4) expected_result: 
+                                                                                                                             (1,yellow) (2,red) (3,red) (4,yellow) (5,red) (6,red) 
+                                                                                                                           (5) expected_result: 
+                                                                                                                             (1,blue) (2,blue) (3,blue) (4,blue) (5,blue) (6,blue) 
+                                                                                                                           (6) expected_result: 
+                                                                                                                             (1,yellow) (2,blue) (3,yellow) (4,yellow) (5,blue) (6,yellow) 
+                                                                                                                        T4 COMMIT transaction success
+                                                                                                                        [ERROR] in MongoConnector::KVEndTxn ->No transaction started: generic server error
+
+Test Result: Anomaly
+Reason: Data anomaly is not recognized by the database, resulting in data inconsistencies
+
+test_process_file : ./mongodb/snapshot/rat-special2.txt
+#### db_type: mongodb ####
+#### test_type: rat-special2 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 execute stmt: 't1.put(2, 0)'
+                                                                                T3 start transaction success
+                                                                                T3 execute stmt: 't1.get(0)'
+                                                                                   current_result: 
+                                                                                     (0,0) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,0) 
+                                                                                  *(2) expected_result: 
+                                                                                     (0,0) 
+                                                                                   (3) expected_result: 
+                                                                                     (0,1) 
+                                                                                  *(4) expected_result: 
+                                                                                     (0,0) 
+                                                                                   (5) expected_result: 
+                                                                                     (0,1) 
+                                                                                   (6) expected_result: 
+                                                                                     (0,1) 
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+T1 execute stmt: 't1.put(1, 1)'
+T1 COMMIT transaction success
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.get(2)'
+                                           current_result: 
+                                             (2,0) 
+                                           (1) expected_result: 
+                                             (2,1) 
+                                           (2) expected_result: 
+                                             (2,1) 
+                                          *(3) expected_result: 
+                                             (2,0) 
+                                          *(4) expected_result: 
+                                             (2,0) 
+                                          *(5) expected_result: 
+                                             (2,0) 
+                                           (6) expected_result: 
+                                             (2,1) 
+                                                                                T3 execute stmt: 't1.put(2, 1)'
+                                                                                T3 COMMIT transaction success
+                                        T2 execute stmt: 't1.get(1)'
+                                           current_result: 
+                                             (1,1) 
+                                          *(1) expected_result: 
+                                             (1,1) 
+                                           (2) expected_result: 
+                                             (1,0) 
+                                           (3) expected_result: 
+                                             (1,0) 
+                                           (4) expected_result: 
+                                             (1,0) 
+                                          *(5) expected_result: 
+                                             (1,1) 
+                                          *(6) expected_result: 
+                                             (1,1) 
+                                        T2 COMMIT transaction success
+                                                                                                                        T4 execute stmt: 't1.get(*)'
+                                                                                                                           current_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(1) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(2) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(3) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(4) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(5) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(6) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+
+Test Result: Anomaly
+Reason: Data anomaly is not recognized by the database, resulting in data inconsistencies
+
+test_process_file : ./mongodb/snapshot/rat-special.txt
+#### db_type: mongodb ####
+#### test_type: rat-special ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 execute stmt: 't1.put(2, 0)'
+                                                                                T3 start transaction success
+                                                                                T3 execute stmt: 't1.get(0)'
+                                                                                   current_result: 
+                                                                                     (0,0) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,0) 
+                                                                                  *(2) expected_result: 
+                                                                                     (0,0) 
+                                                                                   (3) expected_result: 
+                                                                                     (0,1) 
+                                                                                  *(4) expected_result: 
+                                                                                     (0,0) 
+                                                                                   (5) expected_result: 
+                                                                                     (0,1) 
+                                                                                   (6) expected_result: 
+                                                                                     (0,1) 
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+T1 execute stmt: 't1.put(1, 1)'
+T1 COMMIT transaction success
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.get(2)'
+                                           current_result: 
+                                             (2,0) 
+                                           (1) expected_result: 
+                                             (2,1) 
+                                           (2) expected_result: 
+                                             (2,1) 
+                                          *(3) expected_result: 
+                                             (2,0) 
+                                          *(4) expected_result: 
+                                             (2,0) 
+                                          *(5) expected_result: 
+                                             (2,0) 
+                                           (6) expected_result: 
+                                             (2,1) 
+                                                                                T3 execute stmt: 't1.put(2, 1)'
+                                        T2 execute stmt: 't1.get(1)'
+                                           current_result: 
+                                             (1,1) 
+                                          *(1) expected_result: 
+                                             (1,1) 
+                                           (2) expected_result: 
+                                             (1,0) 
+                                           (3) expected_result: 
+                                             (1,0) 
+                                           (4) expected_result: 
+                                             (1,0) 
+                                          *(5) expected_result: 
+                                             (1,1) 
+                                          *(6) expected_result: 
+                                             (1,1) 
+                                        T2 COMMIT transaction success
+                                                                                T3 COMMIT transaction success
+                                                                                                                        T4 execute stmt: 't1.get(*)'
+                                                                                                                           current_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(1) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(2) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(3) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(4) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(5) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(6) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+
+Test Result: Anomaly
+Reason: Data anomaly is not recognized by the database, resulting in data inconsistencies
+
+test_process_file : ./mongodb/snapshot/read-only-transaction-anomaly-deposit-report.txt
+#### db_type: mongodb ####
+#### test_type: read-only-transaction-anomaly-deposit-report ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+[ERROR]stmt: drop table if exists control; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: drop table if exists receipt; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: create table control(deposit_no int not null); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into control values (1); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+T1 COMMIT transaction success
+[ERROR]stmt: create table receipt (receipt_no int primary key, deposit_no int not null, payee varchar(255) not null, amount int not null); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+                                        T2 COMMIT transaction success
+[ERROR]stmt: insert into receipt values (1, 1, 'Crosby', '100'); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into receipt values (2, 1, 'Stills', '200'); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into receipt values (3, 1, 'Nash', '300'); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+                                        T2 COMMIT transaction success
+[ERROR]stmt: BEGIN; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: insert into receipt values (4, (select deposit_no from control), 'Young', '100'); unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: select * from receipt; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: BEGIN; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: select deposit_no from control; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: update control set deposit_no = 2; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: COMMIT; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: BEGIN; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: select * from receipt where deposit_no = 1; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: COMMIT; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: COMMIT; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: select * from receipt; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: select * from control; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+[ERROR]stmt: COMMIT; unknown option:  The current program supports the following commands: begin t1.get(k) t1.put(k,v) t1.getpred(v) t1.putpred(v,v) t1.vinc(k,+100) commit rollback
+
+Test Result: Anomaly
+Reason: Data anomaly is not recognized by the database, resulting in data inconsistencies
+
+test_process_file : ./mongodb/snapshot/read-only-transaction-anomaly.txt
+#### db_type: mongodb ####
+#### test_type: read-only-transaction-anomaly ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+  *(2) expected_result: 
+     (0,0) 
+  *(3) expected_result: 
+     (0,0) 
+  *(4) expected_result: 
+     (0,0) 
+  *(5) expected_result: 
+     (0,0) 
+  *(6) expected_result: 
+     (0,0) 
+T1 execute stmt: 't1.get(1)'
+   current_result: 
+     (1,0) 
+  *(1) expected_result: 
+     (1,0) 
+  *(2) expected_result: 
+     (1,0) 
+   (3) expected_result: 
+     (1,20) 
+   (4) expected_result: 
+     (1,20) 
+  *(5) expected_result: 
+     (1,0) 
+   (6) expected_result: 
+     (1,20) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.get(1)'
+                                           current_result: 
+                                             (1,0) 
+                                          *(1) expected_result: 
+                                             (1,0) 
+                                          *(2) expected_result: 
+                                             (1,0) 
+                                          *(3) expected_result: 
+                                             (1,0) 
+                                          *(4) expected_result: 
+                                             (1,0) 
+                                          *(5) expected_result: 
+                                             (1,0) 
+                                          *(6) expected_result: 
+                                             (1,0) 
+                                        T2 execute stmt: 't1.put(1, 20)'
+                                        T2 COMMIT transaction success
+                                                                                T3 start transaction success
+                                                                                T3 execute stmt: 't1.get(0)'
+                                                                                   current_result: 
+                                                                                     (0,0) 
+                                                                                   (1) expected_result: 
+                                                                                     (0,11) 
+                                                                                   (2) expected_result: 
+                                                                                     (0,11) 
+                                                                                  *(3) expected_result: 
+                                                                                     (0,0) 
+                                                                                   (4) expected_result: 
+                                                                                     (0,11) 
+                                                                                  *(5) expected_result: 
+                                                                                     (0,0) 
+                                                                                  *(6) expected_result: 
+                                                                                     (0,0) 
+                                                                                T3 execute stmt: 't1.get(1)'
+                                                                                   current_result: 
+                                                                                     (1,20) 
+                                                                                  *(1) expected_result: 
+                                                                                     (1,20) 
+                                                                                   (2) expected_result: 
+                                                                                     (1,0) 
+                                                                                  *(3) expected_result: 
+                                                                                     (1,20) 
+                                                                                  *(4) expected_result: 
+                                                                                     (1,20) 
+                                                                                   (5) expected_result: 
+                                                                                     (1,0) 
+                                                                                   (6) expected_result: 
+                                                                                     (1,0) 
+                                                                                T3 COMMIT transaction success
+T1 execute stmt: 't1.put(0, 11)'
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     (0,11) (1,20) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,11) (1,20) 
+                                                                                  *(2) expected_result: 
+                                                                                     (0,11) (1,20) 
+                                                                                  *(3) expected_result: 
+                                                                                     (0,11) (1,20) 
+                                                                                  *(4) expected_result: 
+                                                                                     (0,11) (1,20) 
+                                                                                  *(5) expected_result: 
+                                                                                     (0,11) (1,20) 
+                                                                                  *(6) expected_result: 
+                                                                                     (0,11) (1,20) 
+
+Test Result: Anomaly
+Reason: Data anomaly is not recognized by the database, resulting in data inconsistencies
+
+test_process_file : ./mongodb/snapshot/read-skew1.txt
+#### db_type: mongodb ####
+#### test_type: read-skew1 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+   (2) expected_result: 
+     (0,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 1)'
+                                        T2 execute stmt: 't1.put(1, 1)'
+                                        T2 COMMIT transaction success
+T1 execute stmt: 't1.get(1)'
+   current_result: 
+     (1,0) 
+  *(1) expected_result: 
+     (1,0) 
+   (2) expected_result: 
+     (1,1) 
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(2) expected_result: 
+                                                                                     (0,1) (1,1) 
+
+The current result is consistent with the [(1) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/read-skew2.txt
+#### db_type: mongodb ####
+#### test_type: read-skew2 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+   (2) expected_result: 
+     (0,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 1)'
+                                        T2 execute stmt: 't1.put(1, 1)'
+T1 execute stmt: 't1.get(1)'
+   current_result: 
+     (1,0) 
+  *(1) expected_result: 
+     (1,0) 
+   (2) expected_result: 
+     (1,1) 
+                                        T2 COMMIT transaction success
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(2) expected_result: 
+                                                                                     (0,1) (1,1) 
+
+The current result is consistent with the [(1) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/read-skew3.txt
+#### db_type: mongodb ####
+#### test_type: read-skew3 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.get(0)'
+                                           current_result: 
+                                             (0,0) 
+                                           (1) expected_result: 
+                                             (0,1) 
+                                          *(2) expected_result: 
+                                             (0,0) 
+                                        T2 execute stmt: 't1.get(1)'
+                                           current_result: 
+                                             (1,0) 
+                                           (1) expected_result: 
+                                             (1,1) 
+                                          *(2) expected_result: 
+                                             (1,0) 
+T1 execute stmt: 't1.put(1, 1)'
+                                        T2 COMMIT transaction success
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(2) expected_result: 
+                                                                                     (0,1) (1,1) 
+
+The current result is consistent with the [(2) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/read-write-skew1-1.txt
+#### db_type: mongodb ####
+#### test_type: read-write-skew1-1 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+   (2) expected_result: 
+     (0,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 1)'
+                                        T2 execute stmt: 't1.put(1, 2)'
+T1 execute stmt: 't1.put(1, 1)'
+[ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/read-write-skew1-2.txt
+#### db_type: mongodb ####
+#### test_type: read-write-skew1-2 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 2)'
+                                        [ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/read-write-skew2.txt
+#### db_type: mongodb ####
+#### test_type: read-write-skew2 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+   (2) expected_result: 
+     (0,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 1)'
+                                        T2 execute stmt: 't1.put(1, 1)'
+                                        T2 COMMIT transaction success
+T1 execute stmt: 't1.put(1, 2)'
+[ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/sawtooth.txt
+#### db_type: mongodb ####
+#### test_type: sawtooth ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 execute stmt: 't1.put(2, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+  *(2) expected_result: 
+     (0,0) 
+  *(3) expected_result: 
+     (0,0) 
+   (4) expected_result: 
+     (0,1) 
+   (5) expected_result: 
+     (0,1) 
+   (6) expected_result: 
+     (0,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.get(1)'
+                                           current_result: 
+                                             (1,0) 
+                                           (1) expected_result: 
+                                             (1,1) 
+                                           (2) expected_result: 
+                                             (1,1) 
+                                          *(3) expected_result: 
+                                             (1,0) 
+                                          *(4) expected_result: 
+                                             (1,0) 
+                                           (5) expected_result: 
+                                             (1,1) 
+                                          *(6) expected_result: 
+                                             (1,0) 
+                                                                                T3 start transaction success
+                                                                                T3 execute stmt: 't1.get(2)'
+                                                                                   current_result: 
+                                                                                     (2,0) 
+                                                                                   (1) expected_result: 
+                                                                                     (2,1) 
+                                                                                  *(2) expected_result: 
+                                                                                     (2,0) 
+                                                                                   (3) expected_result: 
+                                                                                     (2,1) 
+                                                                                   (4) expected_result: 
+                                                                                     (2,1) 
+                                                                                  *(5) expected_result: 
+                                                                                     (2,0) 
+                                                                                  *(6) expected_result: 
+                                                                                     (2,0) 
+T1 execute stmt: 't1.put(1, 1)'
+                                        T2 execute stmt: 't1.put(2, 1)'
+                                                                                T3 execute stmt: 't1.put(0, 1)'
+T1 COMMIT transaction success
+                                        T2 COMMIT transaction success
+                                                                                T3 COMMIT transaction success
+                                                                                                                        T4 execute stmt: 't1.get(*)'
+                                                                                                                           current_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(1) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(2) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(3) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(4) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(5) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+                                                                                                                          *(6) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,1) 
+
+Test Result: Anomaly
+Reason: Data anomaly is not recognized by the database, resulting in data inconsistencies
+
+test_process_file : ./mongodb/snapshot/serial-concurrent-phenomenon.txt
+#### db_type: mongodb ####
+#### test_type: serial-concurrent-phenomenon ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+   (2) expected_result: 
+     (0,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 1)'
+                                        T2 execute stmt: 't1.put(1, 1)'
+                                        T2 COMMIT transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+   (2) expected_result: 
+     (0,1) 
+T1 execute stmt: 't1.get(1)'
+   current_result: 
+     (1,0) 
+  *(1) expected_result: 
+     (1,0) 
+   (2) expected_result: 
+     (1,1) 
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(2) expected_result: 
+                                                                                     (0,1) (1,1) 
+
+The current result is consistent with the [(1) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/step-read-skew.txt
+#### db_type: mongodb ####
+#### test_type: step-read-skew ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+  *(2) expected_result: 
+     (0,0) 
+   (3) expected_result: 
+     (0,1) 
+   (4) expected_result: 
+     (0,1) 
+  *(5) expected_result: 
+     (0,0) 
+   (6) expected_result: 
+     (0,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 1)'
+                                        T2 execute stmt: 't1.put(1, 0)'
+                                        T2 COMMIT transaction success
+                                                                                T3 start transaction success
+                                                                                T3 execute stmt: 't1.put(1, 1)'
+                                                                                T3 execute stmt: 't1.put(2, 0)'
+                                                                                T3 COMMIT transaction success
+T1 execute stmt: 't1.get(2)'
+   current_result: 
+     null 
+  *(1) expected_result: 
+     null 
+  *(2) expected_result: 
+     null 
+  *(3) expected_result: 
+     null 
+   (4) expected_result: 
+     (2,0) 
+  *(5) expected_result: 
+     null 
+  *(6) expected_result: 
+     null 
+T1 COMMIT transaction success
+                                                                                                                        T4 execute stmt: 't1.get(*)'
+                                                                                                                           current_result: 
+                                                                                                                             (0,1) (1,1) (2,0) 
+                                                                                                                          *(1) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,0) 
+                                                                                                                           (2) expected_result: 
+                                                                                                                             (0,1) (1,0) 
+                                                                                                                          *(3) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,0) 
+                                                                                                                          *(4) expected_result: 
+                                                                                                                             (0,1) (1,1) (2,0) 
+                                                                                                                           (5) expected_result: 
+                                                                                                                             (0,1) (1,0) 
+                                                                                                                           (6) expected_result: 
+                                                                                                                             (0,1) (1,0) 
+
+The current result is consistent with the [(1) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/step-wat.txt
+#### db_type: mongodb ####
+#### test_type: step-wat ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 execute stmt: 't1.put(2, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(1)'
+   current_result: 
+     (1,0) 
+  *(1) expected_result: 
+     (1,0) 
+  *(2) expected_result: 
+     (1,0) 
+   (3) expected_result: 
+     (1,1) 
+   (4) expected_result: 
+     (1,1) 
+  *(5) expected_result: 
+     (1,0) 
+   (6) expected_result: 
+     (1,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.get(0)'
+                                           current_result: 
+                                             (0,0) 
+                                          *(1) expected_result: 
+                                             (0,0) 
+                                           (2) expected_result: 
+                                             (0,2) 
+                                          *(3) expected_result: 
+                                             (0,0) 
+                                          *(4) expected_result: 
+                                             (0,0) 
+                                           (5) expected_result: 
+                                             (0,2) 
+                                           (6) expected_result: 
+                                             (0,2) 
+                                        T2 execute stmt: 't1.put(0, 1)'
+                                        T2 execute stmt: 't1.get(1)'
+                                           current_result: 
+                                             (1,0) 
+                                          *(1) expected_result: 
+                                             (1,0) 
+                                          *(2) expected_result: 
+                                             (1,0) 
+                                          *(3) expected_result: 
+                                             (1,0) 
+                                          *(4) expected_result: 
+                                             (1,0) 
+                                          *(5) expected_result: 
+                                             (1,0) 
+                                          *(6) expected_result: 
+                                             (1,0) 
+                                        T2 execute stmt: 't1.put(1, 1)'
+                                                                                T3 start transaction success
+                                                                                T3 execute stmt: 't1.put(0, 2)'
+                                                                                [ERROR] in MongoConnector::ExecUpdatekV ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/total-diff-predicate-read-skew.txt
+#### db_type: mongodb ####
+#### test_type: total-diff-predicate-read-skew ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 start transaction success
+T1 execute stmt: 't1.getpred(0)'
+   current_result: 
+     null 
+  *(1) expected_result: 
+     null 
+   (2) expected_result: 
+     (0,0) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(1, 1)'
+                                        T2 execute stmt: 't1.put(0, 0)'
+                                        T2 COMMIT transaction success
+T1 execute stmt: 't1.getpred(1)'
+[ERROR] in MongoConnector::ExecFindkV ->Unable to read from a snapshot due to pending collection catalog changes; please retry the operation. Snapshot timestamp is Timestamp(1654074226, 62). Collection minimum is Timestamp(1654074226, 63): generic server error
+
+Test Result: Rollback
+Reason: Unable to read from a snapshot due to pending collection catalog changes; please retry the operation. Snapshot timestamp is Timestamp(1654074226, 62). Collection minimum is Timestamp(1654074226, 63): generic server error
+
+test_process_file : ./mongodb/snapshot/total-diff-predicate-write-skew.txt
+#### db_type: mongodb ####
+#### test_type: total-diff-predicate-write-skew ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 start transaction success
+T1 execute stmt: 't1.getpred(0)'
+   current_result: 
+     null 
+  *(1) expected_result: 
+     null 
+   (2) expected_result: 
+     (0,0) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.getpred(1)'
+                                           current_result: 
+                                             null 
+                                           (1) expected_result: 
+                                             (1,1) 
+                                          *(2) expected_result: 
+                                             null 
+T1 execute stmt: 't1.put(1, 1)'
+                                        T2 execute stmt: 't1.put(0, 0)'
+T1 COMMIT transaction success
+                                        T2 COMMIT transaction success
+                                        [ERROR] in MongoConnector::KVEndTxn ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/total-same-predicate-read-skew2.txt
+#### db_type: mongodb ####
+#### test_type: total-same-predicate-read-skew2 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(1, 0)'
+T1 execute stmt: 't1.put(2, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.getpred(0)'
+   current_result: 
+     (1,0) (2,0) 
+  *(1) expected_result: 
+     (1,0) (2,0) 
+   (2) expected_result: 
+     null 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(1, 1)'
+                                        T2 execute stmt: 't1.put(2, 1)'
+                                        T2 COMMIT transaction success
+T1 execute stmt: 't1.get(*)'
+   current_result: 
+     (1,0) (2,0) 
+  *(1) expected_result: 
+     (1,0) (2,0) 
+   (2) expected_result: 
+     (1,1) (2,1) 
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     (1,1) (2,1) 
+                                                                                  *(1) expected_result: 
+                                                                                     (1,1) (2,1) 
+                                                                                  *(2) expected_result: 
+                                                                                     (1,1) (2,1) 
+
+The current result is consistent with the [(1) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/total-same-predicate-read-skew.txt
+#### db_type: mongodb ####
+#### test_type: total-same-predicate-read-skew ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 start transaction success
+T1 execute stmt: 't1.getpred(0)'
+   current_result: 
+     null 
+  *(1) expected_result: 
+     null 
+   (2) expected_result: 
+     (0,0) (1,0) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(0, 0)'
+                                        T2 execute stmt: 't1.put(1, 0)'
+                                        T2 COMMIT transaction success
+T1 execute stmt: 't1.getpred(0)'
+[ERROR] in MongoConnector::ExecFindkV ->Unable to read from a snapshot due to pending collection catalog changes; please retry the operation. Snapshot timestamp is Timestamp(1654074226, 79). Collection minimum is Timestamp(1654074227, 1): generic server error
+
+Test Result: Rollback
+Reason: Unable to read from a snapshot due to pending collection catalog changes; please retry the operation. Snapshot timestamp is Timestamp(1654074226, 79). Collection minimum is Timestamp(1654074227, 1): generic server error
+
+test_process_file : ./mongodb/snapshot/total-same-predicate-write-skew.txt
+#### db_type: mongodb ####
+#### test_type: total-same-predicate-write-skew ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 start transaction success
+T1 execute stmt: 't1.getpred(0)'
+   current_result: 
+     null 
+  *(1) expected_result: 
+     null 
+   (2) expected_result: 
+     (0,0) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.getpred(0)'
+                                           current_result: 
+                                             null 
+                                           (1) expected_result: 
+                                             (1,0) 
+                                          *(2) expected_result: 
+                                             null 
+T1 execute stmt: 't1.put(1, 0)'
+                                        T2 execute stmt: 't1.put(0, 0)'
+T1 COMMIT transaction success
+                                        T2 COMMIT transaction success
+                                        [ERROR] in MongoConnector::KVEndTxn ->WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+Test Result: Rollback
+Reason: WriteConflict error: this operation conflicted with another operation. Please retry your operation or multi-document transaction.: generic server error
+
+test_process_file : ./mongodb/snapshot/unnamed-anomaly.txt
+#### db_type: mongodb ####
+#### test_type: unnamed-anomaly ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 execute stmt: 't1.put(2, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(1)'
+   current_result: 
+     (1,0) 
+  *(1) expected_result: 
+     (1,0) 
+  *(2) expected_result: 
+     (1,0) 
+   (3) expected_result: 
+     (1,1) 
+   (4) expected_result: 
+     (1,1) 
+  *(5) expected_result: 
+     (1,0) 
+   (6) expected_result: 
+     (1,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.get(0)'
+                                           current_result: 
+                                             (0,0) 
+                                          *(1) expected_result: 
+                                             (0,0) 
+                                           (2) expected_result: 
+                                             (0,2) 
+                                          *(3) expected_result: 
+                                             (0,0) 
+                                          *(4) expected_result: 
+                                             (0,0) 
+                                           (5) expected_result: 
+                                             (0,2) 
+                                           (6) expected_result: 
+                                             (0,2) 
+                                        T2 execute stmt: 't1.put(0, 1)'
+                                        T2 execute stmt: 't1.get(1)'
+                                           current_result: 
+                                             (1,0) 
+                                          *(1) expected_result: 
+                                             (1,0) 
+                                          *(2) expected_result: 
+                                             (1,0) 
+                                          *(3) expected_result: 
+                                             (1,0) 
+                                          *(4) expected_result: 
+                                             (1,0) 
+                                          *(5) expected_result: 
+                                             (1,0) 
+                                          *(6) expected_result: 
+                                             (1,0) 
+                                        T2 execute stmt: 't1.put(1,1)'
+                                        T2 COMMIT transaction success
+                                                                                T3 start transaction success
+                                                                                T3 execute stmt: 't1.put(0, 2)'
+                                                                                T3 execute stmt: 't1.get(2)'
+                                                                                   current_result: 
+                                                                                     (2,0) 
+                                                                                  *(1) expected_result: 
+                                                                                     (2,0) 
+                                                                                  *(2) expected_result: 
+                                                                                     (2,0) 
+                                                                                  *(3) expected_result: 
+                                                                                     (2,0) 
+                                                                                  *(4) expected_result: 
+                                                                                     (2,0) 
+                                                                                  *(5) expected_result: 
+                                                                                     (2,0) 
+                                                                                  *(6) expected_result: 
+                                                                                     (2,0) 
+                                                                                T3 execute stmt: 't1.put(2, 1)'
+                                                                                T3 COMMIT transaction success
+T1 execute stmt: 't1.get(2)'
+   current_result: 
+     (2,0) 
+  *(1) expected_result: 
+     (2,0) 
+  *(2) expected_result: 
+     (2,0) 
+   (3) expected_result: 
+     (2,1) 
+  *(4) expected_result: 
+     (2,0) 
+   (5) expected_result: 
+     (2,1) 
+   (6) expected_result: 
+     (2,1) 
+T1 COMMIT transaction success
+                                                                                                                        T4 execute stmt: 't1.get(*)'
+                                                                                                                           current_result: 
+                                                                                                                             (0,2) (1,1) (2,1) 
+                                                                                                                          *(1) expected_result: 
+                                                                                                                             (0,2) (1,1) (2,1) 
+                                                                                                                          *(2) expected_result: 
+                                                                                                                             (0,2) (1,1) (2,1) 
+                                                                                                                          *(3) expected_result: 
+                                                                                                                             (0,2) (1,1) (2,1) 
+                                                                                                                          *(4) expected_result: 
+                                                                                                                             (0,2) (1,1) (2,1) 
+                                                                                                                          *(5) expected_result: 
+                                                                                                                             (0,2) (1,1) (2,1) 
+                                                                                                                          *(6) expected_result: 
+                                                                                                                             (0,2) (1,1) (2,1) 
+
+The current result is consistent with the [(1) expected_result] of serial scheduling
+
+Test Result: Avoid
+Reason: Data anomaly did not occur and the data is consistent
+
+test_process_file : ./mongodb/snapshot/write-read-skew1.txt
+#### db_type: mongodb ####
+#### test_type: write-read-skew1 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.put(1, 1)'
+                                        T2 execute stmt: 't1.get(0)'
+                                           current_result: 
+                                             (0,0) 
+                                          *(1) expected_result: 
+                                             (0,0) 
+                                           (2) expected_result: 
+                                             (0,1) 
+                                        T2 COMMIT transaction success
+T1 execute stmt: 't1.get(1)'
+   current_result: 
+     (1,0) 
+   (1) expected_result: 
+     (1,1) 
+  *(2) expected_result: 
+     (1,0) 
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(2) expected_result: 
+                                                                                     (0,1) (1,1) 
+
+Test Result: Anomaly
+Reason: Data anomaly is not recognized by the database, resulting in data inconsistencies
+
+test_process_file : ./mongodb/snapshot/write-read-skew2.txt
+#### db_type: mongodb ####
+#### test_type: write-read-skew2 ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.put(0, 1)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.get(0)'
+                                           current_result: 
+                                             (0,0) 
+                                           (1) expected_result: 
+                                             (0,1) 
+                                          *(2) expected_result: 
+                                             (0,0) 
+                                        T2 execute stmt: 't1.put(1, 1)'
+T1 execute stmt: 't1.get(1)'
+   current_result: 
+     (1,0) 
+  *(1) expected_result: 
+     (1,0) 
+   (2) expected_result: 
+     (1,1) 
+                                        T2 COMMIT transaction success
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(2) expected_result: 
+                                                                                     (0,1) (1,1) 
+
+Test Result: Anomaly
+Reason: Data anomaly is not recognized by the database, resulting in data inconsistencies
+
+test_process_file : ./mongodb/snapshot/write-skew-black-white.txt
+#### db_type: mongodb ####
+#### test_type: write-skew-black-white ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 'dots.put(1, black)'
+T1 execute stmt: 'dots.put(2, white)'
+T1 execute stmt: 'dots.put(3, black)'
+T1 execute stmt: 'dots.put(4, white)'
+T1 start transaction success
+T1 execute stmt: 'dots.putpred(white, black)'
+                                        T2 start transaction success
+                                        T2 execute stmt: 'dots.putpred(black, white)'
+                                        T2 COMMIT transaction success
+                                        T2 execute stmt: 'dots.get(*)'
+                                           current_result: 
+                                             (1,white) (2,white) (3,white) (4,white) 
+                                          *(1) expected_result: 
+                                             (1,white) (2,white) (3,white) (4,white) 
+                                          *(2) expected_result: 
+                                             (1,white) (2,white) (3,white) (4,white) 
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 'dots.get(*)'
+                                                                                   current_result: 
+                                                                                     (1,white) (2,black) (3,white) (4,black) 
+                                                                                   (1) expected_result: 
+                                                                                     (1,white) (2,white) (3,white) (4,white) 
+                                                                                   (2) expected_result: 
+                                                                                     (1,black) (2,black) (3,black) (4,black) 
+
+Test Result: Anomaly
+Reason: Data anomaly is not recognized by the database, resulting in data inconsistencies
+
+test_process_file : ./mongodb/snapshot/write-skew-intersecting-data.txt
+#### db_type: mongodb ####
+#### test_type: write-skew-intersecting-data ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 'mytab.put(10, 1)'
+T1 execute stmt: 'mytab.put(20, 1)'
+T1 execute stmt: 'mytab.put(100, 2)'
+T1 execute stmt: 'mytab.put(200, 2)'
+T1 start transaction success
+T1 execute stmt: 'mytab.getpred(1)'
+   current_result: 
+     (10,1) (20,1) 
+  *(1) expected_result: 
+     (10,1) (20,1) 
+   (2) expected_result: 
+     (10,1) (20,1) (300,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 'mytab.put(300, 1)'
+                                        T2 execute stmt: 'mytab.getpred(2)'
+                                           current_result: 
+                                             (100,2) (200,2) 
+                                           (1) expected_result: 
+                                             (100,2) (200,2) (30,2) 
+                                          *(2) expected_result: 
+                                             (100,2) (200,2) 
+T1 execute stmt: 'mytab.put(30, 2)'
+                                        T2 COMMIT transaction success
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 'mytab.getpred(1)'
+                                                                                   current_result: 
+                                                                                     (10,1) (20,1) (300,1) 
+                                                                                  *(1) expected_result: 
+                                                                                     (10,1) (20,1) (300,1) 
+                                                                                  *(2) expected_result: 
+                                                                                     (10,1) (20,1) (300,1) 
+                                                                                T3 execute stmt: 'mytab.getpred(2)'
+                                                                                   current_result: 
+                                                                                     (100,2) (200,2) (30,2) 
+                                                                                  *(1) expected_result: 
+                                                                                     (100,2) (200,2) (30,2) 
+                                                                                  *(2) expected_result: 
+                                                                                     (100,2) (200,2) (30,2) 
+
+Test Result: Anomaly
+Reason: Data anomaly is not recognized by the database, resulting in data inconsistencies
+
+test_process_file : ./mongodb/snapshot/write-skew-overdraft-protection.txt
+#### db_type: mongodb ####
+#### test_type: write-skew-overdraft-protection ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 'account.put(s, 500)'
+T1 execute stmt: 'account.put(c, 500)'
+T1 start transaction success
+T1 execute stmt: 'account.get(s)'
+   current_result: 
+     (s,500) 
+  *(1) expected_result: 
+     (s,500) 
+   (2) expected_result: 
+     (c,1400) 
+T1 execute stmt: 'account.get(c)'
+   current_result: 
+     (c,500) 
+  *(1) expected_result: 
+     (c,500) 
+   (2) expected_result: 
+     (s,500) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 'account.get(s)'
+                                           current_result: 
+                                             (s,500) 
+                                           (1) expected_result: 
+                                             (s,1400) 
+                                          *(2) expected_result: 
+                                             (s,500) 
+                                        T2 execute stmt: 'account.get(c)'
+                                           current_result: 
+                                             (c,500) 
+                                          *(1) expected_result: 
+                                             (c,500) 
+                                          *(2) expected_result: 
+                                             (c,500) 
+                                        T2 execute stmt: 'account.vinc(c, +900)'
+                                        T2 COMMIT transaction success
+T1 execute stmt: 'account.vinc(s, +900)'
+T1 COMMIT transaction success
+                                                                                T3 execute stmt: 'account.get(*)'
+                                                                                   current_result: 
+                                                                                     (s,1400) (c,1400) 
+                                                                                  *(1) expected_result: 
+                                                                                     (s,1400) (c,1400) 
+                                                                                  *(2) expected_result: 
+                                                                                     (s,1400) (c,1400) 
+
+Test Result: Anomaly
+Reason: Data anomaly is not recognized by the database, resulting in data inconsistencies
+
+test_process_file : ./mongodb/snapshot/write-skew.txt
+#### db_type: mongodb ####
+#### test_type: write-skew ####
+#### isolation: snapshot ####
+
+current_result: The query result of the current SQL statement. Each row of table is separated by a space, and the fields in each row are separated by commas
+expected_result: The expected result is the expected query result for each SQL that conforms to the serializability theory
+ 
+----------test start----------
+T1 execute stmt: 't1.put(0, 0)'
+T1 execute stmt: 't1.put(1, 0)'
+T1 start transaction success
+T1 execute stmt: 't1.get(0)'
+   current_result: 
+     (0,0) 
+  *(1) expected_result: 
+     (0,0) 
+   (2) expected_result: 
+     (0,1) 
+                                        T2 start transaction success
+                                        T2 execute stmt: 't1.get(1)'
+                                           current_result: 
+                                             (1,0) 
+                                           (1) expected_result: 
+                                             (1,1) 
+                                          *(2) expected_result: 
+                                             (1,0) 
+T1 execute stmt: 't1.put(1, 1)'
+T1 COMMIT transaction success
+                                        T2 execute stmt: 't1.put(0, 1)'
+                                        T2 COMMIT transaction success
+                                                                                T3 execute stmt: 't1.get(*)'
+                                                                                   current_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(1) expected_result: 
+                                                                                     (0,1) (1,1) 
+                                                                                  *(2) expected_result: 
+                                                                                     (0,1) (1,1) 
+
+Test Result: Anomaly
+Reason: Data anomaly is not recognized by the database, resulting in data inconsistencies
+

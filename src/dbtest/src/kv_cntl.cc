@@ -334,6 +334,10 @@ std::string KVParser::MongoOpt(const std::string& stmt) {
     auto index_begin = stmt.find("begin");
     auto index_commit = stmt.find("commit");
     auto index_rollback = stmt.find("rollback");
+    auto index_select = stmt.find("select");
+    auto index_delete = stmt.find("delete");
+    auto index_update = stmt.find("update");
+    
     std::string opt = "";
     if (index_get != stmt.npos) {
         if (index_get_p != stmt.npos) {
@@ -361,6 +365,12 @@ std::string KVParser::MongoOpt(const std::string& stmt) {
         opt = "commit";
     } else if (index_rollback != stmt.npos) {
         opt = "rollback";
+    } else if (index_select != stmt.npos) {
+        opt = "p-select";
+    } else if (index_delete != stmt.npos) {
+        opt = "p-delete";
+    } else if (index_update != stmt.npos) {
+        opt = "p-update";
     }
 
     return opt;
