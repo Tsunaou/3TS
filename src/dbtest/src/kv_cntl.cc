@@ -58,7 +58,7 @@ bool MongoConnector::ExecDeleteKV(const int session_id, const int stmt_id, const
             test_process << blank << "T" << session_id << " execute stmt: '" << stmt << "'" << std::endl;
         }
 
-        coll.delete_one(session, doc_value.view());
+        coll.delete_many(session, doc_value.view());
 
     } catch (mongocxx::v_noabi::exception& e) {
         std::string e_info = e.what();
@@ -507,4 +507,63 @@ std::vector<bsoncxx::document::value> KVParser::MongoUpdatePred(const std::strin
     doc_update.emplace_back(doc_value_update);
 
     return doc_update;
+}
+
+std::vector<bsoncxx::document::value> KVParser::MongoUpdatePredNormal(const std::string& stmt_data_k, const std::string& stmt_data_v) {
+    auto builder_filter = bsoncxx::builder::stream::document{};
+    auto builder_update = bsoncxx::builder::stream::document{};
+
+    std::vector<bsoncxx::document::value> doc_update;
+    bsoncxx::document::value doc_value = GetPredFilter(stmt_data_k);
+    bsoncxx::document::value doc_value_update = builder_update << "$set" << open_document << "v" << stmt_data_v << close_document << finalize;
+    doc_update.emplace_back(doc_value);
+    doc_update.emplace_back(doc_value_update);
+
+    return doc_update;
+}
+
+std::vector<std::string> KVParser::SplitStringAndTrimSpace(std::string str, const std::string &delimiters) {
+    size_t prev = 0;
+    size_t current_pos = 0;
+    std::vector<std::string> results;
+
+    auto iter = remove_if(str.begin(), str.end(), ::isspace);
+    str.erase(iter, str.end());
+    
+    while ((current_pos = str.find_first_of(delimiters, prev)) != std::string::npos) {
+        if (current_pos > prev) {
+        auto substr = str.substr(prev, current_pos - prev);
+        results.push_back(substr);
+        }
+        prev = current_pos + 1;
+    }
+    if (prev < str.length()) {
+        results.push_back(str.substr(prev));
+    }
+
+    return results;
+}
+
+bsoncxx::document::value KVParser::GetPredFilter(const std::string &predsStr) {
+    auto preds = SplitStringAndTrimSpace(predsStr, "&&");
+
+    document builder{};
+    auto filter = builder << "$and" << open_array;
+
+    for (const auto &pred : preds) {
+        size_t pos = 0;
+        for (const auto &op : ops_) {
+            if ((pos = pred.find(op)) != std::string::npos) {
+                std::string k = pred.substr(0, pos);
+                std::string v = pred.substr(pos + op.length(), pred.length());
+                filter = filter << open_document << k << open_document << pred_map_[op]
+                                << v << close_document << close_document;
+                break;
+            }
+        }
+    }
+
+    auto after_filter = filter << close_array;
+    bsoncxx::document::value doc_value = after_filter << finalize;
+    return doc_value;
 }

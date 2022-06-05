@@ -108,6 +108,8 @@ class KVParser {
 private:
     std::unordered_map<std::string, int> k_cache_;
     std::unordered_map<std::string, mongocxx::collection> coll_cache_;
+    std::unordered_map<std::string, std::string> pred_map_{{">", "$gt"}, {">=", "$gte"}, {"<", "$lt"}, {"<=", "$lte"}, {"=", "$eq"}};
+    std::vector<std::string> ops_{">=", ">", "<=", "<", "="};
 public:
     std::string MongoOpt(const std::string& stmt);
     std::pair<std::string, std::string> StmtKVData(const std::string& stmt);
@@ -118,6 +120,7 @@ public:
     bsoncxx::document::value MongoInsert(const std::string& stmt_data_k, const std::string& stmt_data_v);
     std::vector<bsoncxx::document::value> MongoUpdate(const std::string& stmt_data_k, const std::string& stmt_data_v);
     std::vector<bsoncxx::document::value> MongoUpdatePred(const std::string& stmt_data_k, const std::string& stmt_data_v);
+    std::vector<bsoncxx::document::value> MongoUpdatePredNormal(const std::string& stmt_data_k, const std::string& stmt_data_v);
     bsoncxx::document::value MongoFind(const std::string& stmt_data_k);
     bsoncxx::document::value MongoFindPred(const std::string& stmt_data_k);
     // cache options
@@ -142,4 +145,7 @@ public:
         return coll;
     };
     void ClearCollCache() {coll_cache_.clear();};
+    // for mongodb predicates
+    std::vector<std::string> SplitStringAndTrimSpace(std::string str, const std::string &delimiters);
+    bsoncxx::document::value GetPredFilter(const std::string &predsStr);
 };
