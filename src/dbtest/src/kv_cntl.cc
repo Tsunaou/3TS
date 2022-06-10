@@ -24,6 +24,7 @@ bool MongoConnector::ExecInsertkV(const int session_id, const int stmt_id, const
         }
 
         //bsoncxx::document::value doc = document{} << "k" << "0" << "v" << "2" << finalize;
+        std::cout << blank << bsoncxx::to_json(doc_value) << std::endl;
         coll.insert_one(session, doc_value.view());
 
     } catch (mongocxx::v_noabi::exception& e) {
@@ -58,6 +59,7 @@ bool MongoConnector::ExecDeleteKV(const int session_id, const int stmt_id, const
             test_process << blank << "T" << session_id << " execute stmt: '" << stmt << "'" << std::endl;
         }
 
+        std::cout << blank << bsoncxx::to_json(doc_value) << std::endl;
         coll.delete_many(session, doc_value.view());
 
     } catch (mongocxx::v_noabi::exception& e) {
@@ -85,6 +87,8 @@ bool MongoConnector::ExecUpdatekV(const int session_id, const int stmt_id, const
             std::ofstream test_process(test_process_file, std::ios::app);
             test_process << blank << "T" << session_id << " execute stmt: '" << stmt << "'" << std::endl;
         }
+        std::cout << blank << bsoncxx::to_json(doc_value_filter) << std::endl;
+        std::cout << blank << bsoncxx::to_json(doc_value_update) << std::endl;
 
         coll.update_many(session, doc_value_filter.view(), doc_value_update.view());
 
@@ -199,10 +203,14 @@ bool MongoConnector::ExecFindKV(const int session_id, const int stmt_id, const s
             std::ofstream test_process(test_process_file, std::ios::app);
             test_process << blank << "T" << session_id << " execute stmt: '" << stmt << "'" << std::endl;
         }
+        std::cout << blank << bsoncxx::to_json(doc_value) << std::endl;
+
+        mongocxx::options::find opts;
+        opts.sort(make_document(kvp("k", 1)));
 
         mongocxx::cursor cursor = [&] {
             if (index_a != stmt.npos) {
-                return coll.find(session, {});
+                return coll.find(session, {}, opts);
             } else {
                 return coll.find(session, doc_value.view());
             }
@@ -348,12 +356,14 @@ std::string KVParser::MongoOpt(const std::string& stmt) {
     } else if (index_put != stmt.npos) {
         const auto& [stmt_data_k, stmt_data_v] = StmtKVData(stmt);
         if (index_put_p == stmt.npos) {
-            if (FindFromKCache(stmt_data_k)) {
-                opt = "update";
-            } else {
-                opt = "insert";
-                PutIntoKCache(stmt_data_k);
-            }
+            // FIXME: How to handle the condition when insert for an existed key
+            // if (FindFromKCache(stmt_data_k)) {
+            //     opt = "update";
+            // } else {
+            //     opt = "insert";
+            //     PutIntoKCache(stmt_data_k);
+            // }
+            opt = "insert";
         } else {
             opt = "updatepred";
         }
@@ -545,7 +555,7 @@ std::vector<std::string> KVParser::SplitStringAndTrimSpace(std::string str, cons
 }
 
 bsoncxx::document::value KVParser::GetPredFilter(const std::string &predsStr) {
-    auto preds = SplitStringAndTrimSpace(predsStr, "&&");
+    auto preds = SplitStringAndTrimSpace(predsStr, "and");
 
     document builder{};
     auto filter = builder << "$and" << open_array;

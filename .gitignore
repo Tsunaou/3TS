@@ -17,3 +17,7 @@ Makefile
 cmake/*
 src/dbtest/CMakeFiles/*
 src/dbtest/mongodb/*
+src/dbtest/.vscode/*
+src/dbtest/build/*
+src/dbtest/mongodb
+src/dbtest/t/mongodb_p

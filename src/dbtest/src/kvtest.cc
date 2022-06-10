@@ -110,9 +110,9 @@ bool JobExecutor::MongoStmtExcutor(const int session_id, const int stmt_id, cons
             return false;
         }
         auto table_name = kv_parser.StmtCollName(stmt);
-        std::cout << "[SHADOW-EXEC] " << "SELECT * FROM " << table_name << " WHERE " << stmt_data_k << std::endl;
+        // std::cout << "[SHADOW-EXEC] " << "SELECT * FROM " << table_name << " WHERE " << stmt_data_k << std::endl;
         auto doc_value = kv_parser.GetPredFilter(stmt_data_k);
-        std::cout << bsoncxx::to_json(doc_value) << std::endl;
+        // std::cout << bsoncxx::to_json(doc_value) << std::endl;
         if (!mongo_connector.ExecFindKV(session_id, stmt_id, stmt, coll, doc_value, test_result_set, cur_result_set, 2, test_process_file)) {
             return false;
         }
@@ -125,9 +125,9 @@ bool JobExecutor::MongoStmtExcutor(const int session_id, const int stmt_id, cons
             return false;
         }
         auto table_name = kv_parser.StmtCollName(stmt);
-        std::cout << "[SHADOW-EXEC] " << "DELETE FROM " << table_name << " WHERE " << stmt_data_k << std::endl;
+        // std::cout << "[SHADOW-EXEC] " << "DELETE FROM " << table_name << " WHERE " << stmt_data_k << std::endl;
         auto doc_value = kv_parser.GetPredFilter(stmt_data_k);
-        std::cout << bsoncxx::to_json(doc_value) << std::endl;
+        // std::cout << bsoncxx::to_json(doc_value) << std::endl;
         if (!mongo_connector.ExecDeleteKV(session_id, stmt_id, stmt, coll, doc_value, test_result_set, test_process_file)) {
             return false;
         }
@@ -139,13 +139,13 @@ bool JobExecutor::MongoStmtExcutor(const int session_id, const int stmt_id, cons
             return false;
         }
         auto table_name = kv_parser.StmtCollName(stmt);
-        std::cout << "[SHADOW-EXEC] " << "UPDATE FROM " << table_name << " SET v=" << stmt_data_v << " WHERE " << stmt_data_k  << std::endl;
+        // std::cout << "[SHADOW-EXEC] " << "UPDATE FROM " << table_name << " SET v=" << stmt_data_v << " WHERE " << stmt_data_k  << std::endl;
         auto doc = kv_parser.MongoUpdatePredNormal(stmt_data_k, stmt_data_v);
         bsoncxx::document::value doc_value = doc[0];
         bsoncxx::document::value doc_value_update = doc[1];
         
-        std::cout << bsoncxx::to_json(doc_value) << std::endl;
-        std::cout << bsoncxx::to_json(doc_value_update) << std::endl;
+        // std::cout << bsoncxx::to_json(doc_value) << std::endl;
+        // std::cout << bsoncxx::to_json(doc_value_update) << std::endl;
 
         if (!mongo_connector.ExecUpdatekV(session_id, stmt_id, stmt, coll, doc_value, doc_value_update, test_result_set, test_process_file)) {
             return false;
@@ -263,7 +263,7 @@ int main(int argc, char* argv[]) {
     std::cout << "  case_type: " <<  FLAGS_case_type << std::endl;
     // init mongo_connector 
     // provide IP, port, and db
-    MongoConnector mongo_connector("mongodb://9.134.39.34:27037/admin", "testdb");
+    MongoConnector mongo_connector("mongodb://9.134.39.34:27017,9.134.39.34:27027,9.134.39.34:27037/?replicaSet=rs", "testdb");
     //MongoConnector mongo_connector("mongodb://9.134.218.253:27037/admin", "testdb");
     mongo_connector.InitMongoConnector(4);
     // init excute obj
