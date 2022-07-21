@@ -1,6 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8) 
 PROJECT(dbtest)
- 
+# set by tsunaouyang in devcloud
+set(CMAKE_C_COMPILER "/opt/rh/devtoolset-11/root/usr/bin/gcc")
+set(CMAKE_CXX_COMPILER "/opt/rh/devtoolset-11/root/usr/bin/g++")
+
 set(CMAKE_BUILD_TYPE "Debug") 
 set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g -ggdb") 
 set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall") 
