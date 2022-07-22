@@ -16,3 +16,5 @@ CMakeFiles
 *.cmake
 Makefile
 cmake/*
+src/dbtest/mysql
+src/dbtest/t/test_case_v2

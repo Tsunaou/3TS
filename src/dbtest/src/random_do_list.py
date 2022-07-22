@@ -17,7 +17,7 @@ import os
 
 #op_set = ["RW", "WR", "WW", "IP", "PI", "DP", "PD", "IR", "RI", "DR", "RD", "RCW", "WCR", "WCW", "ICP", "PCI", "DCP", "PCD",  "ICR", "RCI", "DCR", "RCD"]
 #op_set = ["RW", "WR", "IP", "PI", "DP", "PD"]
-op_set = ["P", "R", "W", "I"] # operations involved in the case
+op_set = ["R", "W"] # operations involved in the case
 illegal_op_set = ["RR", "RP", "PR", "PP"] # patterns can't occur in the case
 do_test_list = "do_test_list.txt"
 
@@ -84,7 +84,8 @@ def dfs1(data_count, res, total_num):
                             dfs1(data_count2, res1, total_num)
                             res1.pop()
             
-
+# data_num: number of variables
+# target_num: number of transactions
 
 data_num = int(sys.argv[1])
 target_num = int(sys.argv[2])

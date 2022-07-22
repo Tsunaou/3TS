@@ -375,7 +375,7 @@ def print_error(result_folder, ts_now, error_message):
         f.write("\n\n")
 
 
-run_result_folder = "pg/serializable"
+run_result_folder = "mysql/serializable"
 result_folder = "check_result/" + run_result_folder
 do_test_list = "do_test_list.txt"
 #ts_now = "_2param_3txn_insert"

@@ -46,10 +46,10 @@ def init_table(file_name, sql_count, txn_count, table_num, db_type, test_type):
         if test_type == "single":
             for i in range(1, table_num + 1):
                 # MySQL 5.1 add InnoDB for table
-                # create_sql = str(sql_count) + "-" + str(txn_count) + "-" + "CREATE TABLE t" + str(i) + \
-                            #  " (k INT PRIMARY KEY, v INT) ENGINE=InnoDB;\n"
                 create_sql = str(sql_count) + "-" + str(txn_count) + "-" + "CREATE TABLE t" + str(i) + \
-                             " (k INT PRIMARY KEY, v INT);\n"
+                             " (k INT PRIMARY KEY, v INT) ENGINE=InnoDB;\n"
+                # create_sql = str(sql_count) + "-" + str(txn_count) + "-" + "CREATE TABLE t" + str(i) + \
+                #              " (k INT PRIMARY KEY, v INT);\n"
                 file_test.write(create_sql)
         elif db_type == "tdsql" or db_type == "ob_oracle":
             data_num = 4
