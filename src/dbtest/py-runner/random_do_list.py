@@ -84,7 +84,8 @@ def dfs1(data_count, res, total_num):
                             dfs1(data_count2, res1, total_num)
                             res1.pop()
             
-
+# data_num: number of variables
+# data_count: number of txns
 
 data_num = int(sys.argv[1])
 target_num = int(sys.argv[2])

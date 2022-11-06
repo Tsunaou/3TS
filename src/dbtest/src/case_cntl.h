@@ -79,6 +79,7 @@ private:
     std::vector<TestResultSet> test_result_set_list_;
 public:
     bool InitTestSequenceAndTestResultSetList(const std::string& test_path, const std::string& db_type);
+    bool InitTestSequenceAndTestResultSetList(const std::string& test_path, const std::string& do_test_list_path, const std::string& db_type);
 
     void AddTestSequence(TestSequence test_sequence) {
         test_sequence_list_.push_back(test_sequence);

@@ -10,7 +10,7 @@
 #  */
 
 
-import Queue
+import queue
 import os
 import time
 
@@ -37,6 +37,7 @@ class Txn:
 
 # find total variable number
 def get_total(lines):
+    ''' 返回执行历史中 Q0-T1 中 insert 的最大变量，例如 insert (0,0) (2,2) (4,4) (6,6) 结果就是 6 '''
     num = 0
     for query in lines:
         query = query.replace("\n", "")
@@ -144,7 +145,8 @@ def build_graph(data_op_list, indegree, edge, txn):
 def insert_edge(data1, data2, indegree, edge, txn):
     if check_concurrency(data1, data2, txn):
         edge_type, data1, data2 = get_edge_type(data1, data2, txn)
-        if edge_type != "RR" and edge_type != "RCR" and data1.txn_num != data2.txn_num:
+        if edge_type != "RR" and edge_type != "RP" and edge_type != "PR" and edge_type != "PP" \
+            and edge_type != "RCR" and edge_type != "RCP" and edge_type != "PCR" and edge_type != "PCP" and data1.txn_num != data2.txn_num:
             indegree[data2.txn_num] += 1
             edge[data1.txn_num].append(Edge(edge_type, data2.txn_num))
 
@@ -272,7 +274,7 @@ def operation_record(total_num, query, txn, data_op_list, version_list):
     if op_time == 0 and query.find("INSERT") != -1:
         init_record(query, version_list)
         return error_message
-    if query.find("returnresult") != -1:
+    if query.find("return result") != -1:
         error_message = readVersion_record(query, op_time, data_op_list, version_list)
         return error_message
     if query.find("finished") != -1:
@@ -309,7 +311,7 @@ def remove_unfinished_operation(data_op_list):
 
 # toposort to determine whether there is a cycle
 def check_cycle(edge, indegree, total):
-    q = Queue.Queue()
+    q = queue.Queue()
     for i, degree in enumerate(indegree):
         if degree == 0: q.put(i)
     ans = []
@@ -332,6 +334,7 @@ def dfs(result_folder, ts_now, now, type):
     if visit[now] == 1: return
     visit[now] = 1
     path.append(now)
+    print('type is ', type)
     edge_type.append(type)
     for v in edge[now]:
         if visit[v.out] == 0:
@@ -375,9 +378,20 @@ def print_error(result_folder, ts_now, error_message):
         f.write("\n\n")
 
 
+# mysql
+# run_result_folder = "mysql/serializable"
+# do_test_list = "do_test_list_my.txt"
+# crdb
+# run_result_folder = "crdb/serializable"
+# do_test_list = "do_test_list_polar.txt"
+# pg
 run_result_folder = "pg/serializable"
+do_test_list = "do_test_list_pg.txt"
+# polar
+# run_result_folder = "polar/serializable"
+# do_test_list = "do_test_list_polar.txt"
+
 result_folder = "check_result/" + run_result_folder
-do_test_list = "do_test_list.txt"
 #ts_now = "_2param_3txn_insert"
 ts_now = time.strftime("%Y%m%d_%H%M%S", time.localtime())
 if not os.path.exists(result_folder):
@@ -392,8 +406,24 @@ for file in files:
         continue
     if file[0] == "#":
         continue
-    with open(run_result_folder + "/" + file + ".txt", "r") as f:
-        lines = f.readlines()
+
+    try:
+        with open(run_result_folder + "/" + file + ".txt", "r") as f:
+            lines = f.readlines()
+    except IOError as e:
+        print(file, ' can not found')
+        continue
+    
+    error_message = ""
+    for line in lines:
+        if line.__contains__('failed reason'):
+            error_message = line
+            break
+    
+    if error_message != "":
+        output_result(file, result_folder, ts_now, "Error")
+        print_error(result_folder, ts_now, line)
+        continue
 
     total_num = get_total(lines)  # total number of variables
     txn = [Txn() for i in range(total_num + 2)]  # total num of transaction

@@ -129,8 +129,12 @@ std::pair<TestSequence, TestResultSet> CaseReader::TestSequenceAndTestResultSetF
 }
 
 bool CaseReader::InitTestSequenceAndTestResultSetList(const std::string& test_path, const std::string& db_type) {
+    return InitTestSequenceAndTestResultSetList(test_path, "./do_test_list.txt", db_type);
+}
+
+bool CaseReader::InitTestSequenceAndTestResultSetList(const std::string& test_path, const std::string& do_test_list_path, const std::string& db_type) {
     std::cout << dash + "read test sequence and test result set start" + dash << std::endl;
-    std::ifstream do_test_stream("./do_test_list.txt");
+    std::ifstream do_test_stream(do_test_list_path);
     std::string test_case;
     if (do_test_stream) {
         while (getline(do_test_stream, test_case)) {
@@ -153,9 +157,9 @@ bool CaseReader::InitTestSequenceAndTestResultSetList(const std::string& test_pa
         return true;
     } else {
         //throw "do_test_list.txt not found";
-        std::cerr << "do_test_list.txt not found" << std::endl;
+        std::cerr << do_test_list_path << " not found" << std::endl;
         return false;
-    }
+    }    
 }
 
 bool ResultHandler::IsSqlExpectedResult(std::vector<std::string> cur_result, std::vector<std::string> expected_result, const int sql_id, const std::string& sql) {

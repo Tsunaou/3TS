@@ -47,7 +47,7 @@ def init_table(file_name, sql_count, txn_count, table_num, db_type, test_type):
             for i in range(1, table_num + 1):
                 # MySQL 5.1 add InnoDB for table
                 # create_sql = str(sql_count) + "-" + str(txn_count) + "-" + "CREATE TABLE t" + str(i) + \
-                            #  " (k INT PRIMARY KEY, v INT) ENGINE=InnoDB;\n"
+                #              " (k INT PRIMARY KEY, v INT) ENGINE=InnoDB;\n"
                 create_sql = str(sql_count) + "-" + str(txn_count) + "-" + "CREATE TABLE t" + str(i) + \
                              " (k INT PRIMARY KEY, v INT);\n"
                 file_test.write(create_sql)
@@ -443,9 +443,9 @@ def write_description(file_name, txn_num, op_num, data_num):
         file_test.write(description)
 
 # target folder
-case_folder = "t/test_case_v2"
+case_folder = "t/test_case_v3"
 # pattern files
-do_test_list = "do_test_list.txt"
+do_test_list = "do_test_list_v2.txt"
 # [single,distributed] => for local test or distributed test
 db_type = sys.argv[1]
 # [tdsql] => for pg/sql standard queries
