@@ -25,15 +25,9 @@ DEFINE_string(case_dir, "mysql", "test case dir name");
 DEFINE_string(out_dir, ".", "the directory to store test results");
 DEFINE_string(timeout, "3", "timeout");
 DEFINE_string(do_test_list, "./do_test_list.txt", "a list contains the patterns to be tested");
+DEFINE_int32(group_id, 1, "the group id for parallel executing dbtest");
 
 std::vector<pthread_mutex_t*> mutex_txn(FLAGS_conn_pool_size);  // same as conn_pool_size
-
-bool try_lock_wait(float wait_second, float wait_nanosecond, int txn_id) {
-  struct timespec timeoutTime;
-  timeoutTime.tv_nsec = wait_nanosecond;
-  timeoutTime.tv_sec = wait_second;
-  return pthread_mutex_timedlock(mutex_txn[txn_id], &timeoutTime) == 0;  // == 0 locked else no lock
-}
 
 bool MultiThreadExecution(std::vector<TxnSql>& txn_sql_list, TestSequence& test_sequence, TestResultSet& test_result_set,
                           DBConnector db_connector, std::string test_process_file,
@@ -95,6 +89,7 @@ bool MultiThreadExecution(std::vector<TxnSql>& txn_sql_list, TestSequence& test_
             db_connector.SQLEndTnx("rollback", i + 1, 1024, test_result_set, FLAGS_db_type, test_process_file);
           }
         }
+        // FIXME: else ?
       }
       break;
     }
@@ -115,10 +110,12 @@ bool MultiThreadExecution(std::vector<TxnSql>& txn_sql_list, TestSequence& test_
       test_process << dash + test_sequence.TestCaseType() + " test execution" + dash << std::endl;
     }
     if (index_read != sql.npos || index_read_1 != sql.npos) {
+      // SELECT ..
       if (!db_connector.ExecReadSql2Int(sql_id, sql, test_result_set, cur_result_set, txn_id, test_sequence.ParamNum(), test_process_file)) {
         goto jump;
       }
     } else if (index_begin != sql.npos || index_begin_1 != sql.npos) {
+      // BEGIN TRANSACTION
       if (FLAGS_db_type != "crdb" && FLAGS_db_type != "ob") {
         if (FLAGS_db_type == "tidb") {
           // if (!db_connector.ExecWriteSql(sql_id, "BEGIN PESSIMISTIC;", test_result_set, txn_id, test_process_file)) {
@@ -172,6 +169,7 @@ bool MultiThreadExecution(std::vector<TxnSql>& txn_sql_list, TestSequence& test_
         }
       }
     } else if (index_commit != sql.npos || index_commit_1 != sql.npos) {
+      // COMMIT TRANSACTION
       if (FLAGS_db_type != "crdb") {
         if (!db_connector.SQLEndTnx("commit", txn_id, sql_id, test_result_set, FLAGS_db_type, test_process_file)) {
           goto jump;
@@ -182,6 +180,7 @@ bool MultiThreadExecution(std::vector<TxnSql>& txn_sql_list, TestSequence& test_
         }
       }
     } else if (index_rollback != sql.npos || index_rollback_1 != sql.npos) {
+      // ROLLBACK
       if (FLAGS_db_type != "crdb") {
         if (!db_connector.SQLEndTnx("rollback", txn_id, sql_id, test_result_set, FLAGS_db_type, test_process_file)) {
           goto jump;
@@ -192,6 +191,7 @@ bool MultiThreadExecution(std::vector<TxnSql>& txn_sql_list, TestSequence& test_
         }
       }
     } else {
+      // UPDATE
       if (!db_connector.ExecWriteSql(sql_id, sql, test_result_set, txn_id, test_process_file)) {
         goto jump;
       }
@@ -206,8 +206,6 @@ jump:
 
 bool JobExecutor::ExecTestSequence(TestSequence& test_sequence, TestResultSet& test_result_set, DBConnector db_connector) {
   std::string test_process_file = FLAGS_out_dir + "/" + FLAGS_db_type + "/" + FLAGS_isolation + "/" + test_sequence.TestCaseType() + ".txt";
-  // std::string test_process_file = FLAGS_out_dir + "/" + FLAGS_db_type + "/" + FLAGS_isolation + "/" + test_sequence.TestCaseType() + "_" + FLAGS_isolation +
-  // ".txt";
   std::cout << test_process_file << std::endl;
   std::ifstream test_process_tmp(test_process_file);
   if (test_process_tmp) {
@@ -223,7 +221,7 @@ bool JobExecutor::ExecTestSequence(TestSequence& test_sequence, TestResultSet& t
   std::cout << "#### db_type: " + FLAGS_db_type + " ####" << std::endl;
 
   std::string test_case_type = test_sequence.TestCaseType();
-  auto index_t = test_case_type.find_first_of("_");
+  auto index_t = test_case_type.find_first_of("_");  // TODO: what means?
   if (index_t != test_case_type.npos) {
     test_case_type = test_case_type.substr(int(index_t) + 1);
   }
@@ -252,7 +250,7 @@ bool JobExecutor::ExecTestSequence(TestSequence& test_sequence, TestResultSet& t
   std::vector<TxnSql> txn_sql_list = test_sequence.TxnSqlList();
   std::cout << dash + test_sequence.TestCaseType() + " test preparation" + dash << std::endl;
   test_process << dash + test_sequence.TestCaseType() + " test preparation" + dash << std::endl;
-  std::unordered_map<int, std::vector<std::string>> cur_result_set;
+  std::unordered_map<int, std::vector<std::string>> cur_result_set;  // TODO: deprecated
   std::unordered_map<int, std::string> sql_map;
   std::string table_name;
 
@@ -271,7 +269,7 @@ bool JobExecutor::ExecTestSequence(TestSequence& test_sequence, TestResultSet& t
         group.clear();
       }
       // put into parallel groups
-      else {
+      else if (group.size() > 0) {
         split_groups.push_back(group);
         group.clear();
         thread_cnt = thread_cnt + 1;
@@ -290,8 +288,9 @@ bool JobExecutor::ExecTestSequence(TestSequence& test_sequence, TestResultSet& t
   // std::cout << init_group.size() <<std::endl;
   for (auto& group : init_group) {
     // for debug
+    // std::cout << "Init Group" << std::endl;
     // for (auto& txn_sql : group) {
-    //     std::cout << " SQLID: " << txn_sql.SqlId() << " TXNID: " <<  txn_sql.TxnId() << " SQL: " << txn_sql.Sql() <<  std::endl;
+    //   std::cout << txn_sql.toString() << std::endl;
     // }
     if (!MultiThreadExecution(group, test_sequence, test_result_set, db_connector, test_process_file, cur_result_set, 0)) {
       return false;
@@ -301,7 +300,7 @@ bool JobExecutor::ExecTestSequence(TestSequence& test_sequence, TestResultSet& t
   std::vector<std::thread> threads;
 
   // exlcude last group
-  for (int i = 0; i < thread_cnt - 1; i++) {
+  for (int i = 0; i < thread_cnt; i++) {
     threads.push_back(std::thread(MultiThreadExecution, std::ref(split_groups[i]), std::ref(test_sequence), std::ref(test_result_set),
                                   std::ref(db_connector), test_process_file, std::ref(cur_result_set), i + 1));
   }
@@ -309,20 +308,9 @@ bool JobExecutor::ExecTestSequence(TestSequence& test_sequence, TestResultSet& t
   for (auto& th : threads) {
     th.join();
   }
-  // execute last group if correct
-  if (test_result_set.ResultType() == "") {
-    if (!MultiThreadExecution(split_groups[thread_cnt - 1], test_sequence, test_result_set, db_connector, test_process_file, cur_result_set,
-                              0)) {
-      return false;
-    }
-  }
+
   if (test_result_set.ResultType() == "") {
     test_result_set.SetResultType("Finish\nReason: The test case was finished without rollback, to be checked if consistent");
-    // if (result_handler.IsTestExpectedResult(cur_result_set, test_result_set.ExpectedResultSetList(), sql_map, test_process_file)) {
-    //     test_result_set.SetResultType("Avoid\nReason: Data anomaly did not occur and the data is consistent");
-    // } else {
-    //     test_result_set.SetResultType("Anomaly\nReason: Data anomaly is not recognized by the database, resulting in data inconsistencies");
-    // }
   }
   if (!outputter.WriteResultType(test_result_set.ResultType(), test_process_file)) {
     return false;
@@ -330,14 +318,24 @@ bool JobExecutor::ExecTestSequence(TestSequence& test_sequence, TestResultSet& t
   return true;
 }
 
-int main(int argc, char* argv[]) {
-  // parse gflags args
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
+void logParameters() {
   std::cout << "input param-> " << std::endl;
   std::cout << "  db_type: " + FLAGS_db_type << std::endl;
   std::cout << "  user: " + FLAGS_user << std::endl;
   std::cout << "  passwd: " + FLAGS_passwd << std::endl;
+  std::cout << "  daname: " + FLAGS_db_name << std::endl;
+  std::cout << "  conn_pool_size: " << FLAGS_conn_pool_size << std::endl;
   std::cout << "  isolation: " + FLAGS_isolation << std::endl;
+  std::cout << "  case_dir: " + FLAGS_case_dir << std::endl;
+  std::cout << "  out_dir: " + FLAGS_out_dir << std::endl;
+  std::cout << "  timeout: " + FLAGS_timeout << std::endl;
+  std::cout << "  do_test_list: " + FLAGS_do_test_list << std::endl;
+}
+
+int main(int argc, char* argv[]) {
+  // parse gflags args
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
+  logParameters();
 
   // mutex for txn
   for (int i = 0; i < FLAGS_conn_pool_size; ++i) {
@@ -356,70 +354,12 @@ int main(int argc, char* argv[]) {
   std::vector<TestSequence> test_sequence_list = case_reader.TestSequenceList();
   std::vector<TestResultSet> test_result_set_list = case_reader.TestResultSetList();
 
-  // // one session for all
-  // // init db_connector
-  // std::cout << dash + "init db_connector start" + dash << std::endl;
-  // DBConnector db_connector;
-  // if (!db_connector.InitDBConnector(FLAGS_user, FLAGS_passwd, FLAGS_db_type, FLAGS_conn_pool_size)) {
-  //     std::cout << "init db_connector failed" << std::endl;
-  // }
-  // // set TXN_ISOLATION
-  // // crdb has only one isolation level, which is serializable by default
-  // if (FLAGS_db_type != "crdb" && FLAGS_db_type != "mongodb") {
-  //     std::cout << dash + "set TXN_ISOLATION = " + FLAGS_isolation + dash << std::endl;
-  //     //std::cout << dash + "set TIMEOUT = " + FLAGS_timeout + dash << std::endl;
-  //     int idx = 1;
-  //     for (auto hdbc : db_connector.DBConnPool()) {
-  //         // set timeout
-  //         if (!db_connector.SetTimeout(idx, FLAGS_timeout, FLAGS_db_type)) {
-  //             return false;
-  //         }
-  //         if(!db_connector.SetIsolationLevel(hdbc, FLAGS_isolation, idx, FLAGS_db_type)) {
-  //             return false;
-  //         }
-  //     idx++;
-  //     }
-  //     std::cout << "set TXN_ISOLATION = " + FLAGS_isolation + " success"<< std::endl;
-  // }
-
-  // // create test_process_output_file's dir
-  // if (access(FLAGS_db_type.c_str(), 0) == -1) {
-  //     mkdir(FLAGS_db_type.c_str(), S_IRWXU);
-  // }
-  // // create isolation dir
-  // // std::vector<std::string> iso_list = {"read-uncommitted", "read-committed", "repeatable-read", "serializable", "result_summary"};
-  // std::vector<std::string> iso_list = {"read-committed", "serializable", "result_summary"};
-  // for (auto iso : iso_list) {
-  //     std::string iso_dir = FLAGS_db_type + "/" + iso;
-  //     if (access(iso_dir.c_str(), 0) == -1) {
-  //         mkdir(iso_dir.c_str(), S_IRWXU);
-  //     }
-  // }
-
-  // // send sql
-  // JobExecutor job_executor;
-  // int len = test_sequence_list.size();
-  // for (int i = 0; i < len; i++) {
-
-  //     if (!job_executor.ExecTestSequence(test_sequence_list[i], test_result_set_list[i], db_connector)) {
-  //         std::cout << "test sequence " + test_sequence_list[i].TestCaseType() + " execute failed" << std::endl;
-  //     } else {
-  //         std::string result_type = test_result_set_list[i].ResultType();
-  //         std::cout << "Test Result: " << result_type + "\n" << std::endl;
-  //     }
-  // }
-  // // output result and release connection
-  // std::string ret_file = FLAGS_out_dir + "/" + FLAGS_db_type + "/result_summary" + "/" +  FLAGS_isolation + "_total-result.txt";
-  // outputter.WriteResultTotal(test_result_set_list, ret_file);
-  // db_connector.ReleaseConn();
-
   // one case one intialization
   // create test_process_output_file's dir
   if (access(FLAGS_db_type.c_str(), 0) == -1) {
     mkdir(FLAGS_db_type.c_str(), S_IRWXU);
   }
   // create isolation dir
-  // std::vector<std::string> iso_list = {"read-committed", "repeatable-read", "serializable", "result_summary"};
   std::vector<std::string> iso_list = {"read-uncommitted", "read-committed", "repeatable-read", "serializable", "result_summary"};
   for (auto iso : iso_list) {
     std::string iso_dir = FLAGS_db_type + "/" + iso;

@@ -25,3 +25,6 @@ src/dbtest/databases/mysql/mysql
 src/dbtest/databases/crdb/crdb
 src/dbtest/databases/polar/polar
 src/dbtest/databases/polar-old/polar-old
+src/dbtest/databases/mariadb/mariadb
+src/dbtest/databases/mariadb/screenlog.0
+src/dbtest/.vscode
