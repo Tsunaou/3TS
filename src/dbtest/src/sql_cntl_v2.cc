@@ -180,7 +180,7 @@ bool DBConnector::ExecWriteSql(int sql_id, const std::string& sql, TestResultSet
     std::string err_info_sql = DBConnector::SqlExecuteErr(session_id, sql_id, sql, "stmt", m_hStatement, ret, test_process_file);
     SQLFreeStmt( m_hStatement, SQL_DROP);
     SQLFreeStmt( m_hStatement, SQL_UNBIND);
-    if (row_count==0 && sql_id !=0){
+    if ((sql.find("UPDATE") != sql.npos || sql.find("INSERT") != sql.npos || sql.find("SELECT") != sql.npos) && row_count==0 && sql_id !=0 && sql_id != 1024){
         std::string blank(blank_base*(session_id - 1), ' ');
         std::string output_time_info = blank + "Q" + std::to_string(sql_id) + "-T" + std::to_string(session_id) + " failed at: " + get_current_time() ;
         std::cout << output_time_info << std::endl;
