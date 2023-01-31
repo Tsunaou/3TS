@@ -34,4 +34,6 @@ src/dbtest/databases/mariadb/screenlog.0
 src/dbtest/databases/oceanbase/ob
 # DMDB
 src/dbtest/databases/dmdb/dm
+# PostgreSQL
+src/dbtest/databases/postgres/postgres
 src/dbtest/.vscode
