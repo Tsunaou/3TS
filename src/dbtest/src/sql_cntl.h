@@ -17,6 +17,8 @@
 class DBConnector {
  private:
   std::vector<SQLHDBC> conn_pool_;
+  std::vector<bool> txn_finished_;
+  std::vector<bool> txn_rollbacked_;
 
  public:
   bool InitDBConnector(std::string& user, std::string& passwd, std::string& db_type, int conn_pool_size) {
@@ -54,6 +56,8 @@ class DBConnector {
       SQLFreeHandle(SQL_HANDLE_ENV, m_hEnviroment);
       conn_pool_.push_back(m_hDatabaseConnection);
     }
+    txn_finished_.resize(conn_pool_size, false);
+    txn_rollbacked_.resize(conn_pool_size, false);
     std::cout << "init db_connector success" << std::endl;
     return true;
   };
@@ -87,4 +91,8 @@ class DBConnector {
   };
   void ReleaseEnv();
   void Release() { ReleaseConn(); };
+
+  bool Finished(int session_id) { return this->txn_finished_[session_id]; }
+  bool Rollbacked(int session_id) { return this->txn_rollbacked_[session_id]; }
+  void setRollbacked(int session_id) { this->txn_rollbacked_[session_id] = true; }
 };

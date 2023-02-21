@@ -9,7 +9,7 @@ opt3_list_path = '../opt3.txt'
 
 # invalid conflicts: II IW WI ID DI DD (also need to include 'C', e.g., ICI, in total 12 = 6*2)
 invalid_conflicts = [
-    r'IC*I', r'IC*W', r'WC*I', r'IC*D', r'DC*I', r'DC*D',
+    r'IC*I', r'IW', r'WC*I', r'IC*D', r'DC*I', r'DC*D',
 ]
 
 # invalid pattern: WW-WW WW-WR WW-RW WR-WW WR-WR WR-RW RW-WW RW-RW
@@ -53,12 +53,12 @@ def report_results(opt0_cases, opt1_cases, opt2_cases, opt3_cases):
     print('Opt1 number:', len(opt1_cases))
     print('-' * 100)
     print('Opt2 number:', len(opt2_cases))
-    for case in opt2_cases:
-        print(case)
+    # for case in opt2_cases:
+    #     print(case)
     print('-' * 100)
     print('Opt3 number:', len(opt3_cases))
-    for case in opt3_cases:
-        print(case)
+    # for case in opt3_cases:
+    #     print(case)
 
 
 def write_do_test_list(testcases, path):
@@ -77,13 +77,13 @@ if __name__ == '__main__':
     p1 = re.compile('P')
     opt1_cases = list(filter(lambda x: p1.findall(x) == [], opt0_cases))
     # OPT2 remove "P" and remove invalid pattern
-    p2 = re.compile('|'.join(invalid_patterns))
+    p2 = re.compile('|'.join(invalid_conflicts))
     opt2_cases = list(filter(lambda x: match_pattern(p2, x), opt1_cases))
     # OPT3 remove "P" ， invalid pattern，invalid conflicts
     p3 = re.compile('|'.join(invalid_conflicts))
     opt3_cases = list(filter(lambda x: match_pattern(p3, x), opt2_cases))
 
-    # report_results(opt0_cases, opt1_cases, opt2_cases, opt3_cases)
+    report_results(opt0_cases, opt1_cases, opt2_cases, opt3_cases)
 
     # write_do_test_list(opt1_cases, opt1_list_path)
     # write_do_test_list(opt2_cases, opt2_list_path)
@@ -100,3 +100,7 @@ if __name__ == '__main__':
         print('-- {} cycles are remained after opt1'.format(len(cycles.intersection(set(opt1_cases)))))
         print('-- {} cycles are remained after opt2'.format(len(cycles.intersection(set(opt2_cases)))))
         print('-- {} cycles are remained after opt3'.format(len(cycles.intersection(set(opt3_cases)))))
+
+        diffs = set(cycles).difference(opt2_cases)
+        for diff in diffs:
+            print(diff)

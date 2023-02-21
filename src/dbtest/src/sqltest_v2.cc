@@ -77,19 +77,27 @@ bool MultiThreadExecution(std::vector<TxnSql>& txn_sql_list, TestSequence& test_
     sql = std::regex_replace(sql, std::regex("select"), "SELECT");
     sql = std::regex_replace(sql, std::regex("update"), "UPDATE");
 
-    std::string ret_type = test_result_set.ResultType();
-    auto index_T = ret_type.find("Timeout");
-    auto index_R = ret_type.find("Rollback");
-    if (index_T != ret_type.npos || index_R != ret_type.npos) {
-      for (int i = 0; i < FLAGS_conn_pool_size; i++) {
-        if (FLAGS_db_type != "ob") {
-          if (FLAGS_db_type == "crdb") {
-            db_connector.ExecWriteSql(1024, "ROLLBACK TRANSACTION", test_result_set, i + 1, test_process_file);
-          } else {
-            db_connector.SQLEndTnx("rollback", i + 1, 1024, test_result_set, FLAGS_db_type, test_process_file);
-          }
-        }
-        // FIXME: else ?
+    // std::string ret_type = test_result_set.ResultType();
+    // auto index_T = ret_type.find("Timeout");
+    // auto index_R = ret_type.find("Rollback");
+    // 罪魁祸首在这里，如果发现了 ret_type 已经是 Rollback 了，则不继续执行
+    // if (index_T != ret_type.npos || index_R != ret_type.npos) {
+    //   for (int i = 0; i < FLAGS_conn_pool_size; i++) {
+    //     if (FLAGS_db_type != "ob") {
+    //       if (FLAGS_db_type == "crdb") {
+    //         db_connector.ExecWriteSql(1024, "ROLLBACK TRANSACTION", test_result_set, i + 1, test_process_file);
+    //       } else {
+    //         db_connector.SQLEndTnx("rollback", i + 1, 1024, test_result_set, FLAGS_db_type, test_process_file);
+    //       }
+    //     }
+    //     // FIXME: else ?
+    //   }
+    //   break;
+    // }
+    if (db_connector.Finished(txn_id)) {
+      if (!db_connector.Rollbacked(txn_id)) {
+        db_connector.SQLEndTnx("rollback", txn_id, 1024, test_result_set, FLAGS_db_type, test_process_file);
+        db_connector.setRollbacked(txn_id);
       }
       break;
     }
